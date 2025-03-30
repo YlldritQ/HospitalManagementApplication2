@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SecureEndpoints")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ab7c4625084dfbb8d0f2a698fac35b02bcb99bd7")]
 [assembly: System.Reflection.AssemblyProductAttribute("SecureEndpoints")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SecureEndpoints")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
