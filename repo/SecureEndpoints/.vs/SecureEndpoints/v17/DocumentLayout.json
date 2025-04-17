@@ -1,0 +1,143 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Migrations\\20250330234810_users_table.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250330234810_users_table.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\repo\\secureendpoints\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\repo\\secureendpoints\\core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|solutionrelative:core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\repo\\secureendpoints\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\repo\\secureendpoints\\core\\dbcontext\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|solutionrelative:core\\dbcontext\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\repo\\secureendpoints\\core\\automapperconfig\\automapperconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|solutionrelative:core\\automapperconfig\\automapperconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\repo\\secureendpoints\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|SecureEndpoints.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20250330234810_users_table.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Migrations\\20250330234810_users_table.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250330234810_users_table.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Migrations\\20250330234810_users_table.cs",
+              "RelativeToolTip": "Migrations\\20250330234810_users_table.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T23:48:11.243Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AQIAABIAAAAAAAAAAAAAACkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-03-30T23:43:52.118Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AutoMapperConfig.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
+              "RelativeDocumentMoniker": "Core\\AutoMapperConfig\\AutoMapperConfig.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
+              "RelativeToolTip": "Core\\AutoMapperConfig\\AutoMapperConfig.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T23:39:25.057Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AQIAAAEAAAAAAAAAAAAwwBIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-03-30T23:33:04.628Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAAABcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T23:29:20.336Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Core\\DbContext\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Core\\DbContext\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Core\\DbContext\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Core\\DbContext\\ApplicationDbContext.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAAAcAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T23:09:09.978Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Core\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "Core\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\repo\\SecureEndpoints\\Core\\Services\\AuthService.cs",
+              "RelativeToolTip": "Core\\Services\\AuthService.cs",
+              "ViewState": "AQIAAKABAAAAAAAAAAAYwK4BAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T23:03:01.722Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
