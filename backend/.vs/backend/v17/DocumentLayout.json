@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|backend.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\backend\\core\\services\\logservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|backend.csproj|solutionrelative:core\\services\\logservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "LogService.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\Core\\Services\\LogService.cs",
+              "RelativeDocumentMoniker": "Core\\Services\\LogService.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\Core\\Services\\LogService.cs",
+              "RelativeToolTip": "Core\\Services\\LogService.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAAYAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-17T19:29:40.844Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
