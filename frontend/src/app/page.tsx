@@ -56,7 +56,7 @@ export default function Home() {
               textDecoration: "none",
             }}
           >
-            About
+            Read our docs
           </a>
         </div>
       </nav>

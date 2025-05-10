@@ -1,9 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\",
+  "WorkspaceRootPath": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|backend.csproj|c:\\users\\deama\\onedrive\\desktop\\hospitalmanagementapplication2\\backend\\core\\services\\logservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|backend.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\backend\\core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|backend.csproj|solutionrelative:core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|backend.csproj|c:\\users\\pc\\onedrive\\desktop\\hospitalapp2\\hospitalmanagementapplication2\\backend\\core\\services\\logservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{65D90865-D0C0-4CC6-AC00-9DD9EF1EFFAC}|backend.csproj|solutionrelative:core\\services\\logservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -23,15 +27,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "LogService.cs",
-              "DocumentMoniker": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\LogService.cs",
-              "RelativeDocumentMoniker": "Core\\Services\\LogService.cs",
-              "ToolTip": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\LogService.cs",
-              "RelativeToolTip": "Core\\Services\\LogService.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAJAAAA",
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\Core\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "Core\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\Core\\Services\\AuthService.cs",
+              "RelativeToolTip": "Core\\Services\\AuthService.cs",
+              "ViewState": "AQIAAJcAAAAAAAAAAAA+wOwAAAAQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-17T19:29:40.844Z",
+              "WhenOpened": "2025-05-10T07:02:30.735Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "LogService.cs",
+              "DocumentMoniker": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\Core\\Services\\LogService.cs",
+              "RelativeDocumentMoniker": "Core\\Services\\LogService.cs",
+              "ToolTip": "C:\\Users\\PC\\OneDrive\\Desktop\\HospitalApp2\\HospitalManagementApplication2\\backend\\Core\\Services\\LogService.cs",
+              "RelativeToolTip": "Core\\Services\\LogService.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAAcAAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-17T19:29:40.844Z"
             }
           ]
         }
