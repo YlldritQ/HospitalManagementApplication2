@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
-    "antd": "^5.14.1",
+    "antd": "^5.25.1",
     "axios": "^1.8.4",
     "form": "^0.2.5",
     "mongodb": "^6.15.0",

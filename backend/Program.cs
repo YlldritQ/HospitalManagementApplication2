@@ -1,5 +1,6 @@
 using backend.Core.DbContext;
 using backend.Core.Enitites;
+using backend.Core.Entities;
 using backend.Core.Interfaces;
 using backend.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,88 +13,89 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ------------------------------
+// Configure Services
+// ------------------------------
 
-builder.Services.AddControllers();
-
-builder.Services.AddControllers().
-    AddJsonOptions(options =>
+// Add Controllers with JSON enum serialization
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+// AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
-//DbConfig
 
+// DbContext - SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-
     options.UseSqlServer(builder.Configuration.GetConnectionString("local"))
 );
 
-//Dependency Injection
-builder.Services.AddScoped<ILogService, LogService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-
-//Add Identity
+// Identity
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-//Config Identity
-builder.Services.Configure<IdentityOptions>(Options =>
+// Identity Options
+builder.Services.Configure<IdentityOptions>(options =>
 {
-    Options.Password.RequiredLength = 8;
-    Options.Password.RequireDigit = false;
-    Options.Password.RequireUppercase = false;
-    Options.Password.RequireNonAlphanumeric = false;
-    Options.SignIn.RequireConfirmedAccount = false;
-    Options.SignIn.RequireConfirmedEmail = false;
-    Options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
 });
 
-//AuthenticationSchema and JWT Bearer
-builder.Services.
-    AddAuthentication(Options =>
+// JWT Authentication
+builder.Services
+    .AddAuthentication(options =>
     {
-        Options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer(Options =>
+    .AddJwtBearer(options =>
     {
-        Options.SaveToken = true;
-        Options.RequireHttpsMetadata = false;
-        Options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidIssuer = builder.Configuration["JWT:Validissuer"],
+            ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
             ValidAudience = builder.Configuration["JWT:ValidAudience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
         };
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Dependency Injection
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Please enter your token with this format: ''Bearer YOUR_TOKEN''",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Please enter your token with this format: 'Bearer YOUR_TOKEN'",
+        Type = SecuritySchemeType.ApiKey,
         BearerFormat = "JWT",
-        Scheme = "bearer",
+        Scheme = "bearer"
     });
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
-                Name = "Bearer",
-                In = ParameterLocation.Header,
                 Reference = new OpenApiReference
                 {
                     Id = "Bearer",
@@ -105,26 +107,28 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// ------------------------------
+// Configure Middleware
+// ------------------------------
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors(options => {
+app.UseCors(options =>
+{
     options.AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowAnyOrigin();
+           .AllowAnyMethod()
+           .AllowAnyOrigin();
 });
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication(); // <- Make sure this is here if using JWT
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

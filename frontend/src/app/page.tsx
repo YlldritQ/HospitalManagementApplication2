@@ -50,6 +50,16 @@ export default function Home() {
             Home
           </a>
           <a
+            href="/patients"
+            style={{
+              color: "#004d66",
+              marginRight: "1rem",
+              textDecoration: "none",
+            }}
+          >
+            Patients
+          </a>
+          <a
             href="/about"
             style={{
               color: "#004d66",
@@ -67,7 +77,7 @@ export default function Home() {
           position: "relative",
           width: "100%",
           flex: 1,
-          backgroundImage: "url('/images/image1.jpg')", // ndrysho sipas nevojës
+          backgroundImage: "url('/images/image1.jpg')", // change image path if needed
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "flex",

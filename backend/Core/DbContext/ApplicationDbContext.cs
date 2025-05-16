@@ -1,4 +1,5 @@
 ﻿using backend.Core.Enitites;
+using backend.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,9 @@ namespace backend.Core.DbContext
         {
         }
         public DbSet<Log> Logs { get; set; }
-       
+        public DbSet<Patient> Patients { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -55,6 +58,7 @@ namespace backend.Core.DbContext
             {
                 e.ToTable("UserRoles");
             });
-           }
+        }
     }
 }
+
