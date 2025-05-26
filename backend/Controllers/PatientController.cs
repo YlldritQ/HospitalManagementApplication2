@@ -1,63 +1,91 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using backend.Core.Entities;
+﻿using backend.Core.Dtos.Patient;
+using backend.Core.Dtos.General;
 using backend.Core.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class PatientController : ControllerBase
     {
-        private readonly IPatientService _service;
+        private readonly IPatientService _patientService;
 
-        public PatientController(IPatientService service)
+        public PatientController(IPatientService patientService)
         {
-            _service = service;
+            _patientService = patientService;
         }
 
-        // GET: api/Patient
+        // GET: api/patient
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<PatientDto>>> GetAllPatients()
         {
-            var patients = await _service.GetAllAsync();
+            var patients = await _patientService.GetAllAsync();
             return Ok(patients);
         }
 
-        // GET: api/Patient/{id}
+        // GET: api/patient/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<PatientDto>> GetPatientById(int id)
         {
-            var patient = await _service.GetByIdAsync(id);
-            if (patient == null) return NotFound();
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null)
+            {
+                return NotFound();
+            }
             return Ok(patient);
         }
 
-        // POST: api/Patient
+        // POST: api/patient
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Patient patient)
+        public async Task<ActionResult> CreatePatient([FromBody] CUPatientDto patientDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var created = await _service.CreateAsync(patient);
-            return CreatedAtAction(nameof(GetById), new { id = created.PatientId }, created);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _patientService.CreateAsync(patientDto);
+            return StatusCode(response.StatusCode, response);
         }
 
-        // PUT: api/Patient/{id}
+        // PUT: api/patient/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Patient patient)
+        public async Task<IActionResult> UpdatePatient(int id, [FromBody] CUPatientDto patientDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var updated = await _service.UpdateAsync(id, patient);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null)
+            {
+                return NotFound(new { Message = $"Patient with ID {id} not found." });
+            }
+
+            var response = await _patientService.UpdateAsync(id, patientDto);
+
+            if (!response.IsSucceed)
+            {
+                return StatusCode(response.StatusCode, new { Message = response.Message });
+            }
+
+            return Ok(response);
         }
 
-        // DELETE: api/Patient/{id}
+        // DELETE: api/patient/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeletePatient(int id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            var patient = await _patientService.GetByIdAsync(id);
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            var response = await _patientService.DeleteAsync(id);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using backend.Core.DbContext;
+﻿using AutoMapper;
+using backend.Core.DbContext;
+using backend.Core.Dtos.General;
+using backend.Core.Dtos.Patient;
 using backend.Core.Entities;
 using backend.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -8,58 +11,104 @@ namespace backend.Core.Services
     public class PatientService : IPatientService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public PatientService(ApplicationDbContext context)
+        public PatientService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        // Get all patients
-        public async Task<List<Patient>> GetAllAsync()
+        public async Task<List<PatientDto>> GetAllAsync()
         {
-            return await _context.Patients.ToListAsync();
+            var patients = await _context.Patients.ToListAsync();
+            return _mapper.Map<List<PatientDto>>(patients);
         }
 
-        // Get a patient by ID
-        public async Task<Patient> GetByIdAsync(int id)
+        public async Task<PatientDto> GetByIdAsync(int id)
         {
-            return await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == id);
+            var patient = await _context.Patients.FindAsync(id);
+            return _mapper.Map<PatientDto>(patient);
         }
 
-        // Create a new patient
-        public async Task<Patient> CreateAsync(Patient patient)
+        public async Task<GeneralServiceResponseDto> CreateAsync(CUPatientDto dto)
         {
-            if (patient == null) return null;
+            var patient = _mapper.Map<Patient>(dto);
 
             await _context.Patients.AddAsync(patient);
             await _context.SaveChangesAsync();
-            return patient;
+
+            return new GeneralServiceResponseDto
+            {
+                IsSucceed = true,
+                StatusCode = 201,
+                Message = "Patient created successfully"
+            };
         }
 
-        // Update an existing patient
-        public async Task<Patient> UpdateAsync(int id, Patient patient)
+        public async Task<GeneralServiceResponseDto> UpdateAsync(int patientId, CUPatientDto patientDto)
         {
-            var existingPatient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == id);
-            if (existingPatient == null) return null;
+            var existingPatient = await _context.Patients
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.PatientId == patientId);
 
-            existingPatient.FullName = patient.FullName;
-            existingPatient.Gender = patient.Gender;
-            existingPatient.BirthDate = patient.BirthDate;
-            existingPatient.Phone = patient.Phone;
+            if (existingPatient == null)
+            {
+                return new GeneralServiceResponseDto
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = $"Patient with ID {patientId} not found."
+                };
+            }
 
-            await _context.SaveChangesAsync();
-            return existingPatient;
+            try
+            {
+                var updatedPatient = _mapper.Map<Patient>(patientDto);
+                updatedPatient.PatientId = patientId;
+                _context.Patients.Update(updatedPatient);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return new GeneralServiceResponseDto
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = "An error occurred while updating the patient."
+                };
+            }
+
+            return new GeneralServiceResponseDto
+            {
+                IsSucceed = true,
+                StatusCode = 200,
+                Message = $"Patient with ID {patientId} has been updated successfully."
+            };
         }
 
-        // Delete a patient by ID
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<GeneralServiceResponseDto> DeleteAsync(int patientId)
         {
-            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == id);
-            if (patient == null) return false;
+            var patient = await _context.Patients.FindAsync(patientId);
+            if (patient == null)
+            {
+                return new GeneralServiceResponseDto
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Patient not found."
+                };
+            }
 
             _context.Patients.Remove(patient);
             await _context.SaveChangesAsync();
-            return true;
+
+            return new GeneralServiceResponseDto
+            {
+                IsSucceed = true,
+                StatusCode = 200,
+                Message = "Patient deleted successfully."
+            };
         }
     }
 }

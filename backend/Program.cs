@@ -1,4 +1,4 @@
-using backend.Core.DbContext;
+﻿using backend.Core.DbContext;
 using backend.Core.Enitites;
 using backend.Core.Entities;
 using backend.Core.Interfaces;
@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Services
 // ------------------------------
 
-// Add Controllers with JSON enum serialization
+// Add Controllers with JSON enum support
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -32,13 +32,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("local"))
 );
 
-// Identity
+// Identity Configuration
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Identity Options
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequiredLength = 8;
@@ -68,7 +67,9 @@ builder.Services
             ValidateAudience = true,
             ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
             ValidAudience = builder.Configuration["JWT:ValidAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])
+            )
         };
     });
 
@@ -77,15 +78,24 @@ builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 
-// Swagger
+// Swagger Configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    // ✅ Fix: Define API version info
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Hospital Management API",
+        Version = "v1",
+        Description = "API for managing hospital patients, appointments, prescriptions, and records."
+    });
+
+    // JWT Bearer support in Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Description = "Please enter your token with this format: 'Bearer YOUR_TOKEN'",
+        Description = "Enter your token like this: 'Bearer YOUR_TOKEN'",
         Type = SecuritySchemeType.ApiKey,
         BearerFormat = "JWT",
         Scheme = "bearer"
@@ -116,7 +126,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        // ✅ Explicitly link to the correct Swagger JSON
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Hospital API v1");
+    });
 }
 
 app.UseCors(options =>
@@ -127,7 +141,7 @@ app.UseCors(options =>
 });
 
 app.UseHttpsRedirection();
-app.UseAuthentication(); // <- Make sure this is here if using JWT
+app.UseAuthentication(); // Required for JWT
 app.UseAuthorization();
 
 app.MapControllers();

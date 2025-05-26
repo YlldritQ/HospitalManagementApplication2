@@ -1,4 +1,5 @@
-﻿using backend.Core.Entities;
+﻿using backend.Core.Dtos.Patient;
+using backend.Core.Dtos.General;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,10 +7,11 @@ namespace backend.Core.Interfaces
 {
     public interface IPatientService
     {
-        Task<List<Patient>> GetAllAsync();
-        Task<Patient> GetByIdAsync(int id);
-        Task<Patient> CreateAsync(Patient patient);
-        Task<Patient> UpdateAsync(int id, Patient patient);
-        Task<bool> DeleteAsync(int id);
+        Task<List<PatientDto>> GetAllAsync();
+        Task<PatientDto> GetByIdAsync(int id);
+        Task<GeneralServiceResponseDto> CreateAsync(CUPatientDto dto);
+        Task<GeneralServiceResponseDto> UpdateAsync(int id, CUPatientDto dto);
+        Task<GeneralServiceResponseDto> DeleteAsync(int id);
     }
+
 }
