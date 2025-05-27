@@ -1,25 +1,25 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\",
+  "WorkspaceRootPath": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Enitites\\Patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Enitites\\Patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Core\\Enitites\\Patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\PatientService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\PatientService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Core\\Services\\PatientService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Controllers\\PatientController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Controllers\\PatientController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Controllers\\PatientController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\DbContext\\ApplicationDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\DbContext\\ApplicationDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Core\\DbContext\\ApplicationDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -36,11 +36,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Patient.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Enitites\\Patient.cs",
+              "DocumentMoniker": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Enitites\\Patient.cs",
               "RelativeDocumentMoniker": "backend\\Core\\Enitites\\Patient.cs",
-              "ToolTip": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Enitites\\Patient.cs",
+              "ToolTip": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Enitites\\Patient.cs",
               "RelativeToolTip": "backend\\Core\\Enitites\\Patient.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-26T19:46:31.279Z",
               "EditorCaption": ""
@@ -49,9 +49,9 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "PatientService.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\PatientService.cs",
+              "DocumentMoniker": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\PatientService.cs",
               "RelativeDocumentMoniker": "backend\\Core\\Services\\PatientService.cs",
-              "ToolTip": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\PatientService.cs",
+              "ToolTip": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\Services\\PatientService.cs",
               "RelativeToolTip": "backend\\Core\\Services\\PatientService.cs",
               "ViewState": "AQIAACIAAAAAAAAAAAAuwK0AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -61,9 +61,9 @@
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "PatientController.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Controllers\\PatientController.cs",
+              "DocumentMoniker": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Controllers\\PatientController.cs",
               "RelativeDocumentMoniker": "backend\\Controllers\\PatientController.cs",
-              "ToolTip": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Controllers\\PatientController.cs",
+              "ToolTip": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Controllers\\PatientController.cs",
               "RelativeToolTip": "backend\\Controllers\\PatientController.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -73,9 +73,9 @@
               "$type": "Document",
               "DocumentIndex": 3,
               "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\DbContext\\ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\DbContext\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "backend\\Core\\DbContext\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\DbContext\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\DbContext\\ApplicationDbContext.cs",
               "RelativeToolTip": "backend\\Core\\DbContext\\ApplicationDbContext.cs",
               "ViewState": "AQIAAAMAAAAAAAAAAAAAAA8AAAA0AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -85,9 +85,9 @@
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "AutoMapperConfig.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
+              "DocumentMoniker": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
               "RelativeDocumentMoniker": "backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
-              "ToolTip": "C:\\Users\\HP\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
+              "ToolTip": "C:\\Users\\deama\\OneDrive\\Desktop\\HospitalManagementApplication2\\backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
               "RelativeToolTip": "backend\\Core\\AutoMapperConfig\\AutoMapperConfig.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
