@@ -1,19 +1,25 @@
 ﻿using System;
+using backend.Core.Entities;
 
 namespace backend.Core.Entities
 {
     public class MedicalRecord
     {
         public int Id { get; set; }
+        public string Diagnosis { get; set; } = string.Empty;
+        public string Treatment { get; set; } = string.Empty;
+        public DateTime DateCreated { get; set; }
+
         public int PatientId { get; set; }
-        public DateTime RecordDate { get; set; }
-        public string RecordDetails { get; set; } = null!;
+        public Patient Patient { get; set; } = null!;
 
-        // Navigation property
-        public virtual Patient Patient { get; set; } = null!;
+        public int? DoctorId { get; set; }
+        public Doctor? Doctor { get; set; }
 
-        // Foreign key and navigation property for Prescription
+        public int? NurseId { get; set; }
+        public Nurse? Nurse { get; set; }
+
         public int? PrescriptionId { get; set; }
-        public virtual Prescription? Prescription { get; set; }
+        public Prescription? Prescription { get; set; }
     }
 }

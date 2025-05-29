@@ -1,12 +1,22 @@
-﻿using backend.Core.Entities;
+﻿using System;
+using backend.Core.Entities;
 
-public class Appointment
+namespace backend.Core.Entities
 {
-    public int Id { get; set; }
-    public DateTime AppointmentDate { get; set; }
-    public int PatientId { get; set; }
-    public string Status { get; set; }
+    public class Appointment
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
 
-    public virtual Patient Patient { get; set; }
+        public int PatientId { get; set; }
+        public Patient Patient { get; set; } = null!;
 
+        public int DoctorId { get; set; }
+        public Doctor Doctor { get; set; } = null!;
+
+        public int? RoomId { get; set; }
+        public Room? Room { get; set; }
+
+        // Add other fields if necessary (Reason, Duration, etc.)
+    }
 }

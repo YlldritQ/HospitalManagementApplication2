@@ -1,18 +1,21 @@
 ﻿using System;
+using backend.Core.Entities;
 
 namespace backend.Core.Entities
 {
     public class Prescription
     {
         public int Id { get; set; }
-        public int PatientId { get; set; }
+        public string MedicineName { get; set; } = string.Empty;
+        public string Dosage { get; set; } = string.Empty;
         public DateTime DateIssued { get; set; }
-        public string MedicationName { get; set; } = null!;
-        public string Dosage { get; set; } = null!;
-        public string Instructions { get; set; } = null!;
 
-        public virtual Patient Patient { get; set; } = null!;
+        public int PatientId { get; set; }
+        public Patient Patient { get; set; } = null!;
 
-        public virtual MedicalRecord MedicalRecord { get; set; }
+        public int DoctorId { get; set; }
+        public Doctor Doctor { get; set; } = null!;
+
+        public MedicalRecord? MedicalRecord { get; set; }
     }
 }
