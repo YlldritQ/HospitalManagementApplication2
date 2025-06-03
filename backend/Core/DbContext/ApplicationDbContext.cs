@@ -1,10 +1,8 @@
-﻿using backend.Core.Enitites;
-using backend.Core.Entities;
+﻿using backend.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-using System.Numerics;
 
 namespace backend.Core.DbContext
 {
@@ -32,6 +30,11 @@ namespace backend.Core.DbContext
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<DoctorRoom> DoctorRooms { get; set; }
         public DbSet<NurseRoom> NurseRooms { get; set; }
+        public DbSet<Team> Teams { get; set; }
+        public DbSet<Player> Players { get; set; }
+        public DbSet<Lecturer> Lecturers { get; set; }
+        public DbSet<Lecture> Lectures { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -107,6 +110,16 @@ namespace backend.Core.DbContext
                 .WithMany(dept => dept.Nurses)
                 .HasForeignKey(n => n.DepartmentId)
                 .IsRequired(false);
+
+            builder.Entity<Player>()
+                .HasOne(n => n.Team)
+                .WithMany(dept => dept.Players)
+                .HasForeignKey(n => n.TeamId);
+
+            builder.Entity<Lecture>()
+                .HasOne(n => n.Lecturer)
+                .WithMany(dept => dept.Lectures)
+                .HasForeignKey(n => n.LecturerId);
 
             // Doctor - Appointment (One-to-Many)
             builder.Entity<Appointment>()
