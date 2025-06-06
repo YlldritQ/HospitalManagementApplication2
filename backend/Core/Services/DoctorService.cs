@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-using AutoMapper;
+﻿using AutoMapper;
 using backend.Core.DbContext;
 using backend.Core.Dtos.Doctor;
 using backend.Core.Dtos.General;
@@ -90,15 +87,13 @@ public class DoctorService : IDoctorService
         var department = await _context.Departments.FindAsync(doctorDto.DepartmentId);
         if (department == null)
         {
-            return new GeneralServiceResponseDto()
-            {
-                IsSucceed = false,
+            return new GeneralServiceResponseDto() {
+                IsSucceed = false ,
                 StatusCode = 400,
-                Message = " Given Department Doesn't exist"
-            };
+                Message = " Given Department Doesn't exist"};
         }
 
-        if (doctorDto.DateHired > DateTime.UtcNow)
+        if(doctorDto.DateHired > DateTime.UtcNow)
         {
             return new GeneralServiceResponseDto()
             {
@@ -252,4 +247,3 @@ public class DoctorService : IDoctorService
         return _mapper.Map<IEnumerable<RoomDto>>(rooms);
     }
 }
-

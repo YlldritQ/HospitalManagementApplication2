@@ -67,7 +67,7 @@ public class NurseService : INurseService
         {
             throw new ArgumentException($"Department with ID {nurseDto.DepartmentId} not found.");
         }
-        if (nurse.DateHired > DateTime.UtcNow)
+        if(nurse.DateHired > DateTime.UtcNow)
         {
             return new GeneralServiceResponseDto()
             {

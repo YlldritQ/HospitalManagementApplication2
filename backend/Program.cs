@@ -1,8 +1,8 @@
-﻿using backend.Core.DbContext;
-using backend.Core.Enitites;
+using backend.Core.DbContext;
 using backend.Core.Entities;
 using backend.Core.Interfaces;
 using backend.Core.Services;
+using backend.Core.AutoMapperConfig;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,99 +13,102 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------------------
-// Configure Services
-// ------------------------------
+// Add services to the container.
 
-// Add Controllers with JSON enum support
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+builder.Services.AddControllers();
+
+builder.Services.AddControllers().
+    AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// AutoMapper
-builder.Services.AddAutoMapper(typeof(Program));
+//DbConfig
 
-// DbContext - SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
+
     options.UseSqlServer(builder.Configuration.GetConnectionString("local"))
 );
 
-// Identity Configuration
+//Dependency Injection
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<INurseService, NurseService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
+builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+
+//Add AutoMapper
+
+builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
+
+//Add Identity
 builder.Services
-    .AddIdentity<ApplicationUser, IdentityRole>()
+    .AddIdentity< ApplicationUser,IdentityRole > ()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.Configure<IdentityOptions>(options =>
+//Config Identity
+builder.Services.Configure<IdentityOptions>(Options =>
 {
-    options.Password.RequiredLength = 8;
-    options.Password.RequireDigit = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.SignIn.RequireConfirmedAccount = false;
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedPhoneNumber = false;
+    Options.Password.RequiredLength = 8;
+    Options.Password.RequireDigit = false;
+    Options.Password.RequireUppercase = false;
+    Options.Password.RequireNonAlphanumeric = false;
+    Options.SignIn.RequireConfirmedAccount = false;
+    Options.SignIn.RequireConfirmedEmail = false;
+    Options.SignIn.RequireConfirmedPhoneNumber = false;
 });
 
-// JWT Authentication
-builder.Services
-    .AddAuthentication(options =>
+//AuthenticationSchema and JWT Bearer
+builder.Services.
+    AddAuthentication(Options =>
     {
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
+    Options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+ .AddJwtBearer(Options =>
+{
+    Options.SaveToken = true;
+    Options.RequireHttpsMetadata = false;
+    Options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-            ValidAudience = builder.Configuration["JWT:ValidAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])
-            )
-        };
-    });
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidIssuer = builder.Configuration["JWT:Validissuer"],
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+    };
+});
 
-// Dependency Injection
-builder.Services.AddScoped<ILogService, LogService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IPatientService, PatientService>();
 
-// Swagger Configuration
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // ✅ Fix: Define API version info
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Hospital Management API",
-        Version = "v1",
-        Description = "API for managing hospital patients, appointments, prescriptions, and records."
-    });
-
-    // JWT Bearer support in Swagger
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
-        In = ParameterLocation.Header,
-        Description = "Enter your token like this: 'Bearer YOUR_TOKEN'",
-        Type = SecuritySchemeType.ApiKey,
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Please enter your token with this format: ''Bearer YOUR_TOKEN''",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
         BearerFormat = "JWT",
-        Scheme = "bearer"
+        Scheme = "bearer",
     });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
+                Name = "Bearer",
+                In = ParameterLocation.Header,
                 Reference = new OpenApiReference
                 {
                     Id = "Bearer",
@@ -117,32 +120,24 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// ------------------------------
-// Configure Middleware
-// ------------------------------
-
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        // ✅ Explicitly link to the correct Swagger JSON
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Hospital API v1");
-    });
+    app.UseSwaggerUI();
 }
 
-app.UseCors(options =>
-{
+app.UseCors(options =>{
     options.AllowAnyHeader()
-           .AllowAnyMethod()
-           .AllowAnyOrigin();
+    .AllowAnyMethod()
+    .AllowAnyOrigin();
 });
-
 app.UseHttpsRedirection();
-app.UseAuthentication(); // Required for JWT
+
 app.UseAuthorization();
 
 app.MapControllers();
+
 app.Run();

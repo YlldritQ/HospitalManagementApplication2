@@ -1,17 +1,17 @@
-﻿using backend.Core.Dtos.Patient;
-using backend.Core.Dtos.General;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using backend.Core.Dtos.General;
+using backend.Core.Dtos.Patient;
 
 namespace backend.Core.Interfaces
 {
     public interface IPatientService
     {
-        Task<List<PatientDto>> GetAllAsync();
-        Task<PatientDto> GetByIdAsync(int id);
-        Task<GeneralServiceResponseDto> CreateAsync(CUPatientDto dto);
-        Task<GeneralServiceResponseDto> UpdateAsync(int id, CUPatientDto dto);
-        Task<GeneralServiceResponseDto> DeleteAsync(int id);
+        Task<PatientDto> GetPatientByIdAsync(int patientId);
+        Task<PatientDto> GetPatientByUserIdAsync(string id);
+        Task<IEnumerable<PatientDto>> GetAllPatientsAsync();
+        Task<GeneralServiceResponseDto> CreatePatientAsync(CUPatientDto patientDto);
+        Task<GeneralServiceResponseDto> UpdatePatientAsync(int patientId, CUPatientDto patientDto);
+        Task DeletePatientAsync(int patientId);
     }
-
 }

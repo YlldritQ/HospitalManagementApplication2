@@ -1,6 +1,4 @@
-'use client'
-
-import React,{
+import {
   ReactNode,
   createContext,
   useReducer,
@@ -17,7 +15,7 @@ import {
 import { getSession, setSession } from "./auth.utils";
 import axiosInstance from "../utils/axiosInstance";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import {
   LOGIN_URL,
   ME_URL,
@@ -67,7 +65,7 @@ interface IProps {
 // component to manage all auth functionalities and export
 const AuthContextProvider = ({ children }: IProps) => {
   const [state, dispatch] = useReducer(authReducer, initialAuthState);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   // Initialize Method
   const initializeAuthContext = useCallback(async () => {
@@ -129,9 +127,9 @@ const AuthContextProvider = ({ children }: IProps) => {
       });
       console.log("Register Result:", response);
       toast.success("Register Was Successfull. Please Login.");
-      router.push(PATH_AFTER_REGISTER);
+      navigate(PATH_AFTER_REGISTER);
     },
-    [router]
+    []
   );
 
   const update = useCallback(
@@ -161,13 +159,13 @@ const AuthContextProvider = ({ children }: IProps) => {
           payload: userInfo,
         });
           // Navigate after a short delay to ensure the state is updated
-          router.push("/dashboard/profile");
+          navigate("/dashboard/profile");
       } catch (error) {
         console.error("Update Error:", error);
         toast.error("Update Failed. Please try again.");
       }
     },
-    [router]
+    []
   );
   
   
@@ -186,8 +184,8 @@ const AuthContextProvider = ({ children }: IProps) => {
       type: IAuthContextActionTypes.LOGIN,
       payload: userInfo,
     });
-    router.push(PATH_AFTER_LOGIN);
-  }, [router]);
+    navigate(PATH_AFTER_LOGIN);
+  }, []);
 
   // Logout Method
   const logout = useCallback(() => {
@@ -195,8 +193,8 @@ const AuthContextProvider = ({ children }: IProps) => {
     dispatch({
       type: IAuthContextActionTypes.LOGOUT,
     });
-    router.push(PATH_AFTER_LOGOUT);
-  }, [router]);
+    navigate(PATH_AFTER_LOGOUT);
+  }, []);
 
   // object for values of context provider
   const valuesObject = {

@@ -1,5 +1,4 @@
-﻿using System;
-using backend.Core.Entities;
+﻿using backend.Core.Entities;
 
 namespace backend.Core.Dtos.Doctor
 {

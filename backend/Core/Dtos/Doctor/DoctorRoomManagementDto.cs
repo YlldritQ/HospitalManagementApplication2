@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace backend.Core.Dtos.Doctor
+﻿namespace backend.Core.Dtos.Doctor
 {
     public class DoctorRoomManagementDto
     {

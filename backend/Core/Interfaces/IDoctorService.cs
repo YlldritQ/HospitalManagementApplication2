@@ -19,4 +19,3 @@ public interface IDoctorService
     Task RemoveRoomsFromDoctorAsync(DoctorRoomManagementDto doctorRoomDto);
     Task<IEnumerable<RoomDto>> GetRoomsAssignedToDoctorAsync(int doctorId);
 }
-

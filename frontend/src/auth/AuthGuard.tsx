@@ -1,34 +1,23 @@
-import React, { useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth.hook';
+import { Navigate, Outlet } from 'react-router-dom';
+import useAuth from '../hooks/useAuth.hook';
 import AuthSpinner from '../components/general/AuthSpinner';
-import { useRouter } from 'next/navigation';
+import { PATH_PUBLIC } from '../routes/paths';
 
 //interface for props.
 // We receive a roles array anddecide the next step based on array
 interface IProps {
   roles: string[];
-  children: React.ReactNode;
 }
 
-const AuthGuard = ({ roles, children }: IProps) => {
+const AuthGuard = ({ roles }: IProps) => {
   const { isAuthenticated, user, isAuthLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthLoading) {
-      const hasAccess = isAuthenticated && user?.roles?.find((q) => roles.includes(q));
-      if (!hasAccess) {
-        router.push('/unauthorized');
-      }
-    }
-  }, [isAuthenticated, user, roles, isAuthLoading, router]);
-
+ //access to the requested page?
+ console.log(roles);
+  const hasAccess = isAuthenticated && user?.roles?.find((q) => roles.includes(q));
   if (isAuthLoading) {
     return <AuthSpinner />;
   }
+  return hasAccess ? <Outlet /> : <Navigate to={PATH_PUBLIC.unauthorized} />;
 
-  const hasAccess = isAuthenticated && user?.roles?.find((q) => roles.includes(q));
-  return hasAccess ? <>{children}</> : null;
 };
-
 export default AuthGuard;

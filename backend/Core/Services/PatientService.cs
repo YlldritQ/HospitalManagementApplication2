@@ -19,39 +19,67 @@ namespace backend.Core.Services
             _mapper = mapper;
         }
 
-        public async Task<List<PatientDto>> GetAllAsync()
+        public async Task<PatientDto> GetPatientByIdAsync(int patientId)
         {
-            var patients = await _context.Patients.ToListAsync();
-            return _mapper.Map<List<PatientDto>>(patients);
-        }
+            var patient = await _context.Patients
+                .AsNoTracking()
+                .Include(p => p.Appointments)
+                .Include(p => p.Prescriptions)
+                .Include(p => p.MedicalRecords)
+                .FirstOrDefaultAsync(p => p.PatientId == patientId);
 
-        public async Task<PatientDto> GetByIdAsync(int id)
-        {
-            var patient = await _context.Patients.FindAsync(id);
+            if (patient == null) return null;
+
             return _mapper.Map<PatientDto>(patient);
         }
 
-        public async Task<GeneralServiceResponseDto> CreateAsync(CUPatientDto dto)
+        public async Task<PatientDto> GetPatientByUserIdAsync(string id)
         {
-            var patient = _mapper.Map<Patient>(dto);
+            var patient = await _context.Patients
+                .AsNoTracking()
+                .Include(p => p.Appointments)
+                .Include(p => p.Prescriptions)
+                .Include(p => p.MedicalRecords)
+                .FirstOrDefaultAsync(p => p.UserId == id);
+
+            if (patient == null) return null;
+
+            return _mapper.Map<PatientDto>(patient);
+        }
+
+        public async Task<IEnumerable<PatientDto>> GetAllPatientsAsync()
+        {
+            var patients = await _context.Patients
+                .AsNoTracking()
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<PatientDto>>(patients);
+        }
+
+        public async Task<GeneralServiceResponseDto> CreatePatientAsync(CUPatientDto patientDto)
+        {
+            ValidatePatientDto(patientDto);
+
+            var patient = _mapper.Map<Patient>(patientDto);
+
 
             await _context.Patients.AddAsync(patient);
             await _context.SaveChangesAsync();
 
-            return new GeneralServiceResponseDto
-            {
+            return new GeneralServiceResponseDto() { 
                 IsSucceed = true,
                 StatusCode = 201,
-                Message = "Patient created successfully"
+                Message = " Patient inserted succesfully"
             };
         }
-
-        public async Task<GeneralServiceResponseDto> UpdateAsync(int patientId, CUPatientDto patientDto)
+        public async Task<GeneralServiceResponseDto> UpdatePatientAsync(int patientId, CUPatientDto patientDto)
         {
+            // Validate if the patient exists
             var existingPatient = await _context.Patients
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.PatientId == patientId);
 
+            // If the patient is not found, return a failure response
             if (existingPatient == null)
             {
                 return new GeneralServiceResponseDto
@@ -62,14 +90,14 @@ namespace backend.Core.Services
                 };
             }
 
+            // Map the DTO to a new Patient entity
             try
             {
-                var updatedPatient = _mapper.Map<Patient>(patientDto);
-                updatedPatient.PatientId = patientId;
-                _context.Patients.Update(updatedPatient);
+                _mapper.Map(patientDto, existingPatient);
+                _context.Patients.Update(existingPatient);
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
                 return new GeneralServiceResponseDto
                 {
@@ -79,6 +107,7 @@ namespace backend.Core.Services
                 };
             }
 
+            // Return a successful response if everything went well
             return new GeneralServiceResponseDto
             {
                 IsSucceed = true,
@@ -87,28 +116,57 @@ namespace backend.Core.Services
             };
         }
 
-        public async Task<GeneralServiceResponseDto> DeleteAsync(int patientId)
+        public async Task DeletePatientAsync(int patientId)
         {
             var patient = await _context.Patients.FindAsync(patientId);
-            if (patient == null)
-            {
-                return new GeneralServiceResponseDto
-                {
-                    IsSucceed = false,
-                    StatusCode = 404,
-                    Message = "Patient not found."
-                };
-            }
+            if (patient == null) return;
 
             _context.Patients.Remove(patient);
             await _context.SaveChangesAsync();
+        }
 
-            return new GeneralServiceResponseDto
+        private async Task ValidatePatientExistsAsync(int patientId)
+        {
+            var exists = await _context.Patients.AsNoTracking().AnyAsync(p => p.PatientId == patientId);
+            if (!exists)
             {
-                IsSucceed = true,
-                StatusCode = 200,
-                Message = "Patient deleted successfully."
-            };
+                throw new ArgumentException($"Patient with ID {patientId} not found.");
+            }
+        }
+
+        private void ValidatePatientDto(PatientDto patientDto)
+        {
+            if (string.IsNullOrWhiteSpace(patientDto.FirstName))
+            {
+                throw new ArgumentException("First name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(patientDto.LastName))
+            {
+                throw new ArgumentException("Last name is required.");
+            }
+
+            if (patientDto.DateOfBirth == default)
+            {
+                throw new ArgumentException("Date of birth is required.");
+            }
+        }
+        private void ValidatePatientDto(CUPatientDto patientDto)
+        {
+            if (string.IsNullOrWhiteSpace(patientDto.FirstName))
+            {
+                throw new ArgumentException("First name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(patientDto.LastName))
+            {
+                throw new ArgumentException("Last name is required.");
+            }
+
+            if (patientDto.DateOfBirth == default)
+            {
+                throw new ArgumentException("Date of birth is required.");
+            }
         }
     }
 }

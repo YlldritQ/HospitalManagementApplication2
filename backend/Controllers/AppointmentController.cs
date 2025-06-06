@@ -1,6 +1,5 @@
 ﻿using backend.Core.Constants;
 using backend.Core.Dtos.Appointment;
-using backend.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers
@@ -18,7 +17,7 @@ namespace backend.Controllers
 
         // GET: api/appointment
         [HttpGet]
-        [Route("GetAllAppointments")]
+        [Route ("GetAllAppointments")]
         [Authorize(Roles = StaticUserRoles.AdminDoctor)]
         public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAllAppointments()
         {
@@ -72,9 +71,9 @@ namespace backend.Controllers
             {
                 return NotFound();
             }
-
+            
             var res = await _appointmentService.UpdateAppointmentAsync(id, appointmentDto);
-
+            
             return Ok(res); // 204 No Content
         }
 
@@ -92,6 +91,6 @@ namespace backend.Controllers
 
             return NoContent(); // 204 No Content
         }
-
+        
     }
 }

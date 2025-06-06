@@ -11,5 +11,5 @@ public interface IAppointmentService
     Task<GeneralServiceResponseDto> CreateAppointmentAsync(CUAppointmentDto appointmentDto);
     Task<GeneralServiceResponseDto> UpdateAppointmentAsync(int appointmentId, CUAppointmentDto appointmentDto);
     Task DeleteAppointmentAsync(int appointmentId);
-
+    
 }

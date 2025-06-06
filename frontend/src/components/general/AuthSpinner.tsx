@@ -1,4 +1,3 @@
-import React from 'react';
 import { PiDetective } from 'react-icons/pi';
 
 const AuthSpinner = () => {

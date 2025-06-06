@@ -30,9 +30,9 @@ namespace backend.Core.DbContext
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<DoctorRoom> DoctorRooms { get; set; }
         public DbSet<NurseRoom> NurseRooms { get; set; }
-        public DbSet<Team> Teams { get; set; }
+        public DbSet<Team>  Teams { get; set; }
         public DbSet<Player> Players { get; set; }
-        public DbSet<Lecturer> Lecturers { get; set; }
+        public DbSet<Lecturer>  Lecturers { get; set; }
         public DbSet<Lecture> Lectures { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

@@ -1,6 +1,6 @@
 ﻿using backend.Core.DbContext;
 using backend.Core.Dtos.Log;
-using backend.Core.Enitites;
+using backend.Core.Entities;
 using backend.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;

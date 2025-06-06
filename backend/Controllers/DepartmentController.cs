@@ -99,7 +99,7 @@ namespace backend.Controllers
             if (department == null)
             {
                 return NotFound();
-            }
+            }   
 
             await _departmentService.DeleteDepartmentAsync(id);
 

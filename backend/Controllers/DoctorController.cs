@@ -175,7 +175,7 @@ namespace backend.Controllers
         public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctorsByDepartmentId(int departmentId)
         {
             var doctors = await _doctorService.GetDoctorsByDepartmentIdAsync(departmentId);
-
+            
             return Ok(doctors);
         }
 
