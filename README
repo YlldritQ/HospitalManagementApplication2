@@ -1,0 +1,27 @@
+FIRST TIME RUN: 
+
+1. Open Visual Studio 
+2. With open solution, locate the .sln file inside the backend dir and open that file.
+3. After opening backend project, open Packet Manager Console
+4. Run update-database // this will apply all migrations in DB,
+5. Run backend with https run (Swagger api should open)
+6. Run the Seed Roles post operation to update the roles table with the implemented roles
+7. Open the frontend with your preffered code editor
+8. Open terminal and run npm run dev 
+9. After opening http://localhost:3000 login page should appear
+10. Create a new user using the register option, 
+11. After succesful user creation, open your preffered SQL Database Management system
+12. Locate the HospitalManagement Database
+13. Locate the Roles Table,
+14. Find the admin row and copy the ID of that row
+15. Go to UserRoles table, there should be 2 columns UserId, RoleId, remove the RoleId from the latest record and replace with the id you copied from the Roles Table.
+16. After saving the changes exit the database, and go to the frontend again.
+17. Log in with the user you created in step 10
+18. You should now be logged in as an admin with full access to every part of the application 
+
+
+NORMAL RUN:
+
+1. Run the backend with https run
+2. Run the frontend with npm run dev.
+3. Enjoy 
