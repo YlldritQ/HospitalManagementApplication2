@@ -1,8 +1,9 @@
-using backend.Core.DbContext;
+﻿using backend.Core.DbContext;
 using backend.Core.Entities;
 using backend.Core.Interfaces;
 using backend.Core.Services;
 using backend.Core.AutoMapperConfig;
+using backend.Core.Hubs; // ✅ Correct namespace
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,24 +14,17 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
-builder.Services.AddControllers();
-
-builder.Services.AddControllers().
-    AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
-
-//DbConfig
+builder.Services.AddSignalR(); // ✅ Enable SignalR
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-
     options.UseSqlServer(builder.Configuration.GetConnectionString("local"))
 );
 
-//Dependency Injection
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
@@ -43,17 +37,13 @@ builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
-//Add AutoMapper
-
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
-//Add Identity
 builder.Services
-    .AddIdentity< ApplicationUser,IdentityRole > ()
+    .AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-//Config Identity
 builder.Services.Configure<IdentityOptions>(Options =>
 {
     Options.Password.RequiredLength = 8;
@@ -65,19 +55,17 @@ builder.Services.Configure<IdentityOptions>(Options =>
     Options.SignIn.RequireConfirmedPhoneNumber = false;
 });
 
-//AuthenticationSchema and JWT Bearer
-builder.Services.
-    AddAuthentication(Options =>
-    {
+builder.Services.AddAuthentication(Options =>
+{
     Options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
     Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
- .AddJwtBearer(Options =>
+.AddJwtBearer(Options =>
 {
     Options.SaveToken = true;
     Options.RequireHttpsMetadata = false;
-    Options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+    Options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
@@ -87,22 +75,19 @@ builder.Services.
     };
 });
 
-
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        In = ParameterLocation.Header,
         Description = "Please enter your token with this format: ''Bearer YOUR_TOKEN''",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.ApiKey,
         BearerFormat = "JWT",
         Scheme = "bearer",
     });
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -122,22 +107,24 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors(options =>{
+app.UseCors(options =>
+{
     options.AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowAnyOrigin();
+           .AllowAnyMethod()
+           .AllowAnyOrigin();
 });
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationhub"); // ✅ SignalR endpoint
 
 app.Run();
