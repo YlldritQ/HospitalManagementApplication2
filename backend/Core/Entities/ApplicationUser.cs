@@ -20,5 +20,7 @@ namespace backend.Core.Entities
         public virtual Patient Patient { get; set; }
         public virtual Doctor Doctor { get; set; }
         public virtual Nurse Nurse { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     }
 }

@@ -2,9 +2,7 @@
   "ExpandedNodes": [
     "",
     "\\backend",
-    "\\backend\\Controllers",
-    "\\backend\\Core",
-    "\\backend\\Core\\Enitites"
+    "\\backend\\Core"
   ],
   "SelectedNode": "\\backend\\backend.sln",
   "PreviewInSolutionExplorer": false

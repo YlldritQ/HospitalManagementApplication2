@@ -35,6 +35,9 @@ namespace backend.Core.DbContext
         public DbSet<Lecturer>  Lecturers { get; set; }
         public DbSet<Lecture> Lectures { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -212,6 +215,13 @@ namespace backend.Core.DbContext
                 .HasOne(nr => nr.Room)
                 .WithMany(r => r.NurseRooms)
                 .HasForeignKey(nr => nr.RoomId);
+
+            builder.Entity<Notification>()
+       .HasOne(n => n.User)
+       .WithMany(u => u.Notifications)
+       .HasForeignKey(n => n.UserId)
+       .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }
