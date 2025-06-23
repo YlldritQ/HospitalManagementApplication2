@@ -1,0 +1,42 @@
+# Ignore node_modules and build output
+node_modules/
+build/
+dist/
+
+# Ignore log files
+*.log
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore .NET build output
+bin/
+obj/
+
+# Ignore auto-generated files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore coverage and test output
+coverage/
+
+# Ignore frontend auto-generated files
+frontend/.next/
+frontend/out/
+
+# Ignore backend publish output
+backend/bin/
+backend/obj/
+
+# Ignore other auto-generated files
+*.generated.* 
