@@ -82,43 +82,6 @@ namespace backend.Core.AutoMapperConfig
             CreateMap<UpdateDto, ApplicationUser>();
             CreateMap<ApplicationUser, UpdateDto>();
 
-            CreateMap<TeamDto, Team>();
-            CreateMap<Team, TeamDto>();
-
-            CreateMap<Player, PlayerDto>();
-            CreateMap<PlayerDto, Player>();
-
-            CreateMap<CUTeamDto, Team>();
-            CreateMap<Team, CUTeamDto>();
-
-            CreateMap<Player, CUPlayerDto>();
-            CreateMap<CUPlayerDto, Player>();
-
-            CreateMap<PlanetDto, Planet>();
-            CreateMap<Planet, PlanetDto>();
-
-            CreateMap<CUPlanetDto, Planet>();
-            CreateMap<Planet, CUPlanetDto>();
-
-            CreateMap<SateliteDto, Satelite>();
-            CreateMap<Satelite, SateliteDto>();
-
-            CreateMap<CUSateliteDto, Satelite>();
-            CreateMap<Satelite, CUSateliteDto>();
-
-            CreateMap<CULectureDto, Lecture>();
-            CreateMap<Lecture, CULectureDto>();
-            
-            CreateMap<LectureDto, Lecture>();
-            CreateMap<Lecture, LectureDto>();
-
-            CreateMap<CULecturerDto, Lecturer>();
-            CreateMap<Lecturer, CULecturerDto>();
-
-            CreateMap<LecturerDto, Lecturer>();
-            CreateMap<Lecturer, LecturerDto>();
-
-
         }
 
     }

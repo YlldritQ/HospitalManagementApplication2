@@ -16,7 +16,12 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5274",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SMTP_HOST": "smtp.gmail.com",
+        "SMTP_PORT": "587",
+        "SMTP_USER": "qallakajylldrit9@gmail.com",
+        "SMTP_PASS": "hxda qcuo mcvv pwsc",
+        "SMTP_FROM": "noreply@hospitalApp.com"
       }
     },
     "https": {
@@ -37,5 +42,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
-  }
+  },
+
 }
