@@ -18,5 +18,8 @@ namespace backend.Core.Interfaces
         Task<IEnumerable<string>> GetUsernamesListAsync();
         Task<GeneralServiceResponseDto> DeleteUserAsync(ClaimsPrincipal User, string UserName);
         Task<IList<string>> GetRolesById(string id);
+        Task<string> GenerateRefreshTokenAsync(string ipAddress);
+        Task<LoginServiceResponseDto?> RefreshTokenAsync(string refreshToken, string ipAddress);
+        Task<bool> RevokeRefreshTokenAsync(string refreshToken, string ipAddress);
     }
 }

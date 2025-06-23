@@ -72,3 +72,17 @@ export interface CUMedicalRecordDto {
     nurseId?: number;
     prescriptionId?: number;
 }
+
+export interface MedicalRecord {
+    id: string;
+    patientId: number;
+    patientInfo: PatientSnapshot;
+    recordDate: string;
+    recordDetails: string;
+    doctorId?: number;
+    doctorInfo?: DoctorSnapshot;
+    nurseId?: number;
+    nurseInfo?: NurseSnapshot;
+    prescriptionId?: number;
+    prescriptionInfo?: PrescriptionSnapshot;
+}

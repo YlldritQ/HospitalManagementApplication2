@@ -31,7 +31,7 @@ namespace backend.Controllers
 
         // GET: api/medicalrecord/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<MedicalRecordDto>> GetMedicalRecordById(int id)
+        public async Task<ActionResult<MedicalRecordDto>> GetMedicalRecordById(string id)
         {
             var record = await _medicalRecordService.GetMedicalRecordByIdAsync(id);
             if (record == null)
@@ -69,7 +69,7 @@ namespace backend.Controllers
 
         // PUT: api/medicalrecord/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMedicalRecord(int id, [FromBody] CUMedicalRecordDto recordDto)
+        public async Task<IActionResult> UpdateMedicalRecord(string id, [FromBody] CUMedicalRecordDto recordDto)
         {
             // Validate the model state.
             if (!ModelState.IsValid)
@@ -101,7 +101,7 @@ namespace backend.Controllers
 
         // DELETE: api/medicalrecord/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMedicalRecord(int id)
+        public async Task<IActionResult> DeleteMedicalRecord(string id)
         {
             var existingRecord = await _medicalRecordService.GetMedicalRecordByIdAsync(id);
             if (existingRecord == null)

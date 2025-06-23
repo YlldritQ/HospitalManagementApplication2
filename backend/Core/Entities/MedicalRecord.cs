@@ -1,10 +1,14 @@
 ﻿using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace backend.Core.Entities
 {
     public class MedicalRecord
     {
-        public int Id { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
         public int PatientId { get; set; }
         public PatientSnapshot PatientInfo { get; set; }
         public DateTime RecordDate { get; set; }
@@ -15,6 +19,7 @@ namespace backend.Core.Entities
         public NurseSnapshot? NurseInfo { get; set; }
         public int? PrescriptionId { get; set; }
         public PrescriptionSnapshot? PrescriptionInfo { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
     public class PatientSnapshot

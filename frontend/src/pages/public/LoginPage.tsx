@@ -15,6 +15,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -43,7 +44,7 @@ const LoginPage = () => {
   const onSubmitLoginForm = async (data: ILoginDto) => {
     try {
       setLoading(true);
-      await login(data.userName, data.password);
+      await login(data.userName, data.password, rememberMe);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -87,6 +88,18 @@ const LoginPage = () => {
             icon='lock'
             error={errors.password?.message}
           />
+
+          {/* Improved Remember Me UI */}
+          <div className='flex items-center mb-2'>
+            <input
+              type='checkbox'
+              id='rememberMe'
+              checked={rememberMe}
+              onChange={e => setRememberMe(e.target.checked)}
+              className='form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out mr-2'
+            />
+            <label htmlFor='rememberMe' className='text-sm text-gray-700 select-none cursor-pointer'>Remember Me</label>
+          </div>
 
           <div className='flex justify-between items-center gap-4'>
             <Button

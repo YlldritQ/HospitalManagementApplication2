@@ -12,7 +12,7 @@ import {
   IAuthContextState,
   ILoginResponseDto,
 } from "../types/auth.types";
-import { getSession, setSession } from "./auth.utils";
+import { getSession, setSession, getRefreshToken } from "./auth.utils";
 import axiosInstance from "../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -70,19 +70,41 @@ const AuthContextProvider = ({ children }: IProps) => {
   // Initialize Method
   const initializeAuthContext = useCallback(async () => {
     try {
-      const token = getSession();
+      let token = getSession();
+      let refreshToken = getRefreshToken();
+      // Determine rememberMe based on where the refresh token is stored
+      let rememberMe = !!localStorage.getItem('refreshToken');
       if (token) {
         // validate accessToken by calling backend
         const response = await axiosInstance.post<ILoginResponseDto>(ME_URL, {
           token,
         });
-        // In response, we receive jwt token and user data
-        const { newToken, userInfo } = response.data;
-        setSession(newToken);
+        const { newToken, userInfo, refreshToken: newRefreshToken } = response.data;
+        setSession(newToken, newRefreshToken, rememberMe);
         dispatch({
           type: IAuthContextActionTypes.LOGIN,
           payload: userInfo,
         });
+      } else if (refreshToken) {
+        // Always try to refresh if refreshToken exists (even in new tab)
+        try {
+          const response = await axiosInstance.post<ILoginResponseDto>(
+            "/Auth/refresh-token",
+            JSON.stringify(refreshToken),
+            { headers: { "Content-Type": "application/json" } }
+          );
+          const { newToken, userInfo, refreshToken: newRefreshToken } = response.data;
+          setSession(newToken, newRefreshToken, rememberMe);
+          dispatch({
+            type: IAuthContextActionTypes.LOGIN,
+            payload: userInfo,
+          });
+        } catch (refreshError) {
+          setSession(null);
+          dispatch({
+            type: IAuthContextActionTypes.LOGOUT,
+          });
+        }
       } else {
         setSession(null);
         dispatch({
@@ -171,15 +193,19 @@ const AuthContextProvider = ({ children }: IProps) => {
   
     
   // Login Method
-  const login = useCallback(async (userName: string, password: string) => {
+  const login = useCallback(async (userName: string, password: string, rememberMe: boolean) => {
     const response = await axiosInstance.post<ILoginResponseDto>(LOGIN_URL, {
       userName,
       password,
+      rememberMe,
     });
     toast.success("Login Was Successful");
-    // In response, we receive jwt token and user data
-    const { newToken, userInfo } = response.data;
-    setSession(newToken);
+    const { newToken, userInfo, refreshToken } = response.data;
+    if (rememberMe && refreshToken) {
+      setSession(newToken, refreshToken, true);
+    } else {
+      setSession(newToken, null, false);
+    }
     dispatch({
       type: IAuthContextActionTypes.LOGIN,
       payload: userInfo,

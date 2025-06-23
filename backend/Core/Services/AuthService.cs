@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using System.Security.Cryptography;
 
 namespace backend.Core.Services
 {
@@ -155,13 +156,28 @@ namespace backend.Core.Services
             var newToken = await GenerateJWTTokenAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
             var userInfo = GenerateUserInfoObject(user, roles);
-            Console.WriteLine(userInfo);
             await _logService.SaveNewLog(user.UserName, "New Login");
+
+            string? refreshToken = null;
+            if (loginDto.RememberMe)
+            {
+                // Generate refresh token
+                refreshToken = await GenerateRefreshTokenAsync(""); // TODO: pass real IP address
+                user.RefreshTokens.Add(new RefreshToken
+                {
+                    Token = refreshToken,
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    Created = DateTime.UtcNow,
+                    CreatedByIp = ""
+                });
+                await _userManager.UpdateAsync(user);
+            }
 
             return new LoginServiceResponseDto()
             {
                 NewToken = newToken,
-                UserInfo = userInfo
+                UserInfo = userInfo,
+                RefreshToken = refreshToken
             };
         }
 
@@ -596,6 +612,62 @@ namespace backend.Core.Services
                 throw new ArgumentException("User Doesn't Exist");
             }
             return await _userManager.GetRolesAsync(user);
+        }
+
+        public async Task<string> GenerateRefreshTokenAsync(string ipAddress)
+        {
+            var randomBytes = new byte[64];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomBytes);
+            }
+            return Convert.ToBase64String(randomBytes);
+        }
+
+        public async Task<LoginServiceResponseDto?> RefreshTokenAsync(string refreshToken, string ipAddress)
+        {
+            var user = _context.Users.Include(u => u.RefreshTokens).SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+            if (user == null)
+                return null;
+            var token = user.RefreshTokens.Single(x => x.Token == refreshToken);
+            if (!token.IsActive)
+                return null;
+            // rotate token
+            var newRefreshToken = await GenerateRefreshTokenAsync(ipAddress);
+            token.Revoked = DateTime.UtcNow;
+            token.RevokedByIp = ipAddress;
+            token.ReplacedByToken = newRefreshToken;
+            user.RefreshTokens.Add(new RefreshToken
+            {
+                Token = newRefreshToken,
+                Expires = DateTime.UtcNow.AddDays(7),
+                Created = DateTime.UtcNow,
+                CreatedByIp = ipAddress
+            });
+            await _context.SaveChangesAsync();
+            var newToken = await GenerateJWTTokenAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var userInfo = GenerateUserInfoObject(user, roles);
+            return new LoginServiceResponseDto
+            {
+                NewToken = newToken,
+                UserInfo = userInfo,
+                RefreshToken = newRefreshToken
+            };
+        }
+
+        public async Task<bool> RevokeRefreshTokenAsync(string refreshToken, string ipAddress)
+        {
+            var user = _context.Users.Include(u => u.RefreshTokens).SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+            if (user == null)
+                return false;
+            var token = user.RefreshTokens.Single(x => x.Token == refreshToken);
+            if (!token.IsActive)
+                return false;
+            token.Revoked = DateTime.UtcNow;
+            token.RevokedByIp = ipAddress;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

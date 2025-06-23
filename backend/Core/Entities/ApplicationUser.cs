@@ -22,5 +22,20 @@ namespace backend.Core.Entities
         public virtual Nurse Nurse { get; set; }
         // public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
+        public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    }
+
+    public class RefreshToken
+    {
+        public int Id { get; set; }
+        public string Token { get; set; }
+        public DateTime Expires { get; set; }
+        public bool IsExpired => DateTime.UtcNow >= Expires;
+        public DateTime Created { get; set; }
+        public string CreatedByIp { get; set; }
+        public DateTime? Revoked { get; set; }
+        public string? RevokedByIp { get; set; }
+        public string? ReplacedByToken { get; set; }
+        public bool IsActive => Revoked == null && !IsExpired;
     }
 }

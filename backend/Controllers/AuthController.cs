@@ -154,5 +154,27 @@ namespace backend.Controllers
 
             return Ok(usernames);
         }
+
+        [HttpPost]
+        [Route("refresh-token")]
+        public async Task<ActionResult<LoginServiceResponseDto>> RefreshToken([FromBody] string refreshToken)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
+            var result = await _authService.RefreshTokenAsync(refreshToken, ipAddress);
+            if (result == null)
+                return Unauthorized("Invalid refresh token");
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("revoke-token")]
+        public async Task<IActionResult> RevokeToken([FromBody] string refreshToken)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
+            var result = await _authService.RevokeRefreshTokenAsync(refreshToken, ipAddress);
+            if (!result)
+                return BadRequest("Invalid refresh token");
+            return Ok();
+        }
     }
 }

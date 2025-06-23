@@ -4,5 +4,6 @@
     {
         public string NewToken { get; set; }
         public UserInfoResult UserInfo { get; set; }
+        public string? RefreshToken { get; set; }
     }
 }

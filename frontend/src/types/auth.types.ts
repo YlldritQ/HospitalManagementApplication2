@@ -39,6 +39,7 @@ export interface IRegisterDto {
   export interface ILoginResponseDto {
     newToken: string;
     userInfo: IAuthUser;
+    refreshToken?: string;
   }
   
   export interface IAuthContextState {
@@ -62,7 +63,7 @@ export interface IRegisterDto {
     isAuthenticated: boolean;
     isAuthLoading: boolean;
     user?: IAuthUser;
-    login: (userName: string, password: string) => Promise<void>;
+    login: (userName: string, password: string, rememberMe: boolean) => Promise<void>;
     register: (
       firstName: string,
       lastName: string,

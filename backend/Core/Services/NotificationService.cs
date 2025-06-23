@@ -64,7 +64,7 @@ namespace backend.Core.Services
             return await _mongoContext.Notifications.Find(filter).SortByDescending(n => n.CreatedAt).ToListAsync(ct);
         }
 
-        public async Task MarkAsReadAsync(Guid notificationId, CancellationToken ct = default)
+        public async Task MarkAsReadAsync(string notificationId, CancellationToken ct = default)
         {
             var filter = Builders<Notification>.Filter.Eq(n => n.Id, notificationId);
             var update = Builders<Notification>.Update.Set(n => n.IsRead, true);

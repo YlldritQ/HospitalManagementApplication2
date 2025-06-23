@@ -41,7 +41,7 @@ namespace backend.Core.Services
             _prescriptionService = prescriptionService;
         }
 
-        public async Task<MedicalRecordDto> GetMedicalRecordByIdAsync(int recordId)
+        public async Task<MedicalRecordDto> GetMedicalRecordByIdAsync(string recordId)
         {
             var filter = Builders<MedicalRecord>.Filter.Eq(r => r.Id, recordId);
             var record = await _mongoContext.MedicalRecords.Find(filter).FirstOrDefaultAsync();
@@ -197,7 +197,7 @@ namespace backend.Core.Services
             };
         }
 
-        public async Task<GeneralServiceResponseDto> UpdateMedicalRecordAsync(int recordId, CUMedicalRecordDto recordDto)
+        public async Task<GeneralServiceResponseDto> UpdateMedicalRecordAsync(string recordId, CUMedicalRecordDto recordDto)
         {
             // Validate and fetch related entities
             var patient = await _patientService.GetPatientByIdAsync(recordDto.PatientId);
@@ -302,7 +302,7 @@ namespace backend.Core.Services
             };
         }
 
-        public async Task DeleteMedicalRecordAsync(int recordId)
+        public async Task DeleteMedicalRecordAsync(string recordId)
         {
             var filter = Builders<MedicalRecord>.Filter.Eq(r => r.Id, recordId);
             await _mongoContext.MedicalRecords.DeleteOneAsync(filter);

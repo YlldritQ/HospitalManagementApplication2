@@ -1,4 +1,6 @@
 ﻿using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace backend.Core.Entities
 {
@@ -18,10 +20,9 @@ namespace backend.Core.Entities
     /// </summary>
     public class Notification
     {
-        /// <summary>
-        /// Primary key.
-        /// </summary>
-        public Guid Id { get; set; } = Guid.NewGuid();
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
         /// <summary>
         /// Foreign key to the user who should receive the notification.

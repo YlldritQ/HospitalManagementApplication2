@@ -27,6 +27,7 @@ namespace backend.Core.DbContext
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<DoctorRoom> DoctorRooms { get; set; }
         public DbSet<NurseRoom> NurseRooms { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

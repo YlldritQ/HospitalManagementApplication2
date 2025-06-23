@@ -5,7 +5,7 @@ namespace backend.Core.Dtos.Records
 {
     public class MedicalRecordDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public int PatientId { get; set; }
         public PatientSnapshot PatientInfo { get; set; }
         public DateTime RecordDate { get; set; }

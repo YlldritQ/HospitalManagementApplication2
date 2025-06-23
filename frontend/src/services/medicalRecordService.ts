@@ -9,7 +9,7 @@ const medicalRecordService = {
         return response.data;
     },
 
-    async getMedicalRecordById(id: number): Promise<MedicalRecordDto> {
+    async getMedicalRecordById(id: string): Promise<MedicalRecordDto> {
         const response = await axiosInstance.get<MedicalRecordDto>(`${API_BASE_URL}/${id}`);
         return response.data;
     },
@@ -19,11 +19,11 @@ const medicalRecordService = {
         return response.data;
     },
 
-    async updateMedicalRecord(id: number, recordDto: CUMedicalRecordDto): Promise<void> {
+    async updateMedicalRecord(id: string, recordDto: CUMedicalRecordDto): Promise<void> {
         await axiosInstance.put<void>(`${API_BASE_URL}/${id}`, recordDto);
     },
 
-    async deleteMedicalRecord(id: number): Promise<void> {
+    async deleteMedicalRecord(id: string): Promise<void> {
         await axiosInstance.delete<void>(`${API_BASE_URL}/${id}`);
     },
     async getMedicalRecordsByUserId(id: string | undefined): Promise<MedicalRecordDto[]> {
