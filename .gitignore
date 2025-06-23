@@ -38,5 +38,13 @@ frontend/out/
 backend/bin/
 backend/obj/
 
+# Ignore all files in backend/obj and backend/bin (including subdirectories)
+backend/obj/**
+backend/bin/**
+
 # Ignore other auto-generated files
-*.generated.* 
+*.generated.*
+
+# Ignore Visual Studio workspace files
+backend/.vs/
+backend/.vs/** 
