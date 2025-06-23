@@ -14,7 +14,5 @@ namespace backend.Core.Entities
 
         public virtual Patient Patient { get; set; } = null!;
         public virtual Doctor Doctor { get; set; } = null!;
-
-        public virtual MedicalRecord MedicalRecord { get; set; }
     }
 }

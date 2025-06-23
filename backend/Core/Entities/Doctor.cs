@@ -20,7 +20,5 @@ namespace backend.Core.Entities
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
         public ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
         public ICollection<DoctorRoom> DoctorRooms { get; set; } = new List<DoctorRoom>();
-
-        public ICollection<MedicalRecord> MedicalRecords { get; set; } 
     }
 }

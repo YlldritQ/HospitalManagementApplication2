@@ -12,15 +12,12 @@ namespace backend.Core.DbContext
         {
         }
 
-        public DbSet<Log> Logs { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
 
         public DbSet<Nurse> Nurses { get; set; }
 
         public DbSet<Appointment> Appointments { get; set; }
-
-        public DbSet<MedicalRecord> MedicalRecords { get; set; }
 
         public DbSet<Department> Departments { get; set; }
 
@@ -30,9 +27,6 @@ namespace backend.Core.DbContext
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<DoctorRoom> DoctorRooms { get; set; }
         public DbSet<NurseRoom> NurseRooms { get; set; }
-
-        public DbSet<Notification> Notifications { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -134,33 +128,6 @@ namespace backend.Core.DbContext
                 .WithMany(pat => pat.Prescriptions)
                 .HasForeignKey(p => p.PatientId);
 
-            // Patient - MedicalRecord (One-to-Many)
-            builder.Entity<MedicalRecord>()
-                .HasOne(mr => mr.Patient)
-                .WithMany(p => p.MedicalRecords)
-                .HasForeignKey(mr => mr.PatientId);
-
-            // MedicalRecord - Doctor (Many-to-One, optional)
-            builder.Entity<MedicalRecord>()
-                .HasOne(mr => mr.Doctor)
-                .WithMany(d => d.MedicalRecords)
-                .HasForeignKey(mr => mr.DoctorId)
-                .IsRequired(false);
-
-            // MedicalRecord - Nurse (Many-to-One, optional)
-            builder.Entity<MedicalRecord>()
-                .HasOne(mr => mr.Nurse)
-                .WithMany(n => n.MedicalRecords)
-                .HasForeignKey(mr => mr.NurseId)
-                .IsRequired(false);
-
-            // MedicalRecord - Prescription (One-to-One, optional)
-            builder.Entity<MedicalRecord>()
-                .HasOne(mr => mr.Prescription)
-                .WithOne(p => p.MedicalRecord)
-                .HasForeignKey<MedicalRecord>(mr => mr.PrescriptionId)
-                .IsRequired(false);
-
             // Room - Appointment (Optional Many-to-One)
             builder.Entity<Appointment>()
                 .HasOne(a => a.Room)
@@ -201,12 +168,6 @@ namespace backend.Core.DbContext
                 .HasOne(nr => nr.Room)
                 .WithMany(r => r.NurseRooms)
                 .HasForeignKey(nr => nr.RoomId);
-
-            builder.Entity<Notification>()
-       .HasOne(n => n.User)
-       .WithMany(u => u.Notifications)
-       .HasForeignKey(n => n.UserId)
-       .OnDelete(DeleteBehavior.Cascade);
 
         }
     }

@@ -8,24 +8,26 @@ using backend.Core.Entities;
 using backend.Core.Hubs;
 using backend.Core.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace backend.Core.Services
 {
     public class NotificationService : INotificationService
     {
         private readonly ApplicationDbContext _db;
+        private readonly MongoDbContext _mongoContext;
         private readonly IHubContext<NotificationHub> _hub;
         private readonly IEmailSender _emailSender;
 
-        public NotificationService(ApplicationDbContext db, IHubContext<NotificationHub> hub, IEmailSender emailSender)
+        public NotificationService(ApplicationDbContext db, MongoDbContext mongoContext, IHubContext<NotificationHub> hub, IEmailSender emailSender)
         {
             _db = db;
+            _mongoContext = mongoContext;
             _hub = hub;
             _emailSender = emailSender;
         }
 
-        public async Task SendAsync(string title, string body, NotificationChannel channel = NotificationChannel.Web,  string? userId = null)
+        public async Task SendAsync(string title, string body, NotificationChannel channel = NotificationChannel.Web, string? userId = null)
         {
             if (!string.IsNullOrWhiteSpace(userId))
             {
@@ -36,21 +38,16 @@ namespace backend.Core.Services
                     Body = body,
                     Channel = channel
                 };
-
-                _db.Notifications.Add(entity);
-                await _db.SaveChangesAsync();
-
-                // If Email flag is set, send email
-                if (channel.HasFlag(NotificationChannel.Email))
+                await _mongoContext.Notifications.InsertOneAsync(entity);
+                if(channel.HasFlag(NotificationChannel.Email))
                 {
                     var user = await _db.Users.FindAsync(userId);
-                    if (user != null && !string.IsNullOrEmpty(user.Email))
+                    if(user != null && !string.IsNullOrEmpty(user.Email))
                     {
                         await _emailSender.SendAsync(user.Email, title, body);
                     }
                 }
             }
-
             // If Web flag is set, send via SignalR
             if (channel.HasFlag(NotificationChannel.Web))
             {
@@ -63,21 +60,15 @@ namespace backend.Core.Services
 
         public async Task<IReadOnlyList<Notification>> GetUnreadAsync(string userId, CancellationToken ct = default)
         {
-            return await _db.Notifications
-                .Where(n => n.UserId == userId && !n.IsRead)
-                .OrderByDescending(n => n.CreatedAt)
-                .ToListAsync(ct);
+            var filter = Builders<Notification>.Filter.Where(n => n.UserId == userId && !n.IsRead);
+            return await _mongoContext.Notifications.Find(filter).SortByDescending(n => n.CreatedAt).ToListAsync(ct);
         }
 
         public async Task MarkAsReadAsync(Guid notificationId, CancellationToken ct = default)
         {
-            var notification = await _db.Notifications.FindAsync(new object?[] { notificationId }, ct);
-
-            if (notification != null && !notification.IsRead)
-            {
-                notification.IsRead = true;
-                await _db.SaveChangesAsync(ct);
-            }
+            var filter = Builders<Notification>.Filter.Eq(n => n.Id, notificationId);
+            var update = Builders<Notification>.Update.Set(n => n.IsRead, true);
+            await _mongoContext.Notifications.UpdateOneAsync(filter, update, cancellationToken: ct);
         }
     }
 }

@@ -25,7 +25,6 @@ namespace backend.Core.Services
                 .AsNoTracking()
                 .Include(p => p.Appointments)
                 .Include(p => p.Prescriptions)
-                .Include(p => p.MedicalRecords)
                 .FirstOrDefaultAsync(p => p.PatientId == patientId);
 
             if (patient == null) return null;
@@ -39,7 +38,6 @@ namespace backend.Core.Services
                 .AsNoTracking()
                 .Include(p => p.Appointments)
                 .Include(p => p.Prescriptions)
-                .Include(p => p.MedicalRecords)
                 .FirstOrDefaultAsync(p => p.UserId == id);
 
             if (patient == null) return null;

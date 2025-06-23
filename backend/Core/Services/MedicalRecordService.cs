@@ -2,139 +2,193 @@
 using backend.Core.Constants;
 using backend.Core.DbContext;
 using backend.Core.Dtos.Appointment;
+using backend.Core.Dtos.Doctor;
 using backend.Core.Dtos.General;
+using backend.Core.Dtos.Nurse;
+using backend.Core.Dtos.Prescription;
 using backend.Core.Dtos.Records;
 using backend.Core.Entities;
 using backend.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace backend.Core.Services
 {
     public class MedicalRecordService : IMedicalRecordService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly MongoDbContext _mongoContext;
         private readonly IMapper _mapper;
         private readonly IAuthService _authService;
+        private readonly IPatientService _patientService;
+        private readonly IDoctorService _doctorService;
+        private readonly INurseService _nurseService;
+        private readonly IPrescriptionService _prescriptionService;
 
-        public MedicalRecordService(ApplicationDbContext context, IMapper mapper, IAuthService authService)
+        public MedicalRecordService(
+            MongoDbContext mongoContext,
+            IMapper mapper,
+            IAuthService authService,
+            IPatientService patientService,
+            IDoctorService doctorService,
+            INurseService nurseService,
+            IPrescriptionService prescriptionService)
         {
-            _context = context;
+            _mongoContext = mongoContext;
             _mapper = mapper;
             _authService = authService;
+            _patientService = patientService;
+            _doctorService = doctorService;
+            _nurseService = nurseService;
+            _prescriptionService = prescriptionService;
         }
 
         public async Task<MedicalRecordDto> GetMedicalRecordByIdAsync(int recordId)
         {
-            var record = await _context.MedicalRecords
-                .AsNoTracking()
-                .FirstOrDefaultAsync(r => r.Id == recordId);
-
+            var filter = Builders<MedicalRecord>.Filter.Eq(r => r.Id, recordId);
+            var record = await _mongoContext.MedicalRecords.Find(filter).FirstOrDefaultAsync();
             if (record == null)
-            {
                 throw new ArgumentException($"Medical record with ID {recordId} not found.");
-            }
-
             return _mapper.Map<MedicalRecordDto>(record);
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
-            public async Task<IEnumerable<MedicalRecordDto>> GetMedicalRecordByUserId(string id)
-            {
-                // Get the roles of the user based on their ID
-                var userRoles = await _authService.GetRolesById(id);
-
-                if (userRoles == null)
-                {
-                    throw new ArgumentException("No roles found for the user.");
-                }
-
-                IEnumerable<MedicalRecord> records = Enumerable.Empty<MedicalRecord>(); // Default empty collection
-
-                // Check if the user is a patient
-                if (userRoles.Contains(StaticUserRoles.PATIENT))
-                {
-                    var patientService = new PatientService(_context, _mapper);
-                    var patient = await patientService.GetPatientByUserIdAsync(id);
-
-                    if (patient != null)
-                    {
-                        // Get medical records for the patient
-                        records = await _context.MedicalRecords
-                            .Include(r => r.Patient)
-                            .Include(r => r.Doctor)
-                            .Include(r => r.Nurse)
-                            .Include(r => r.Prescription)
-                            .Where(r => r.PatientId == patient.PatientId)
-                            .AsNoTracking()
-                            .ToListAsync();
-                    }
-                }
-                // Check if the user is a doctor
-                else if (userRoles.Contains(StaticUserRoles.DOCTOR))
-                {
-                    var doctorService = new DoctorService(_context, _mapper);
-                    var doctor = await doctorService.GetDoctorByUserIdAsync(id);
-
-                    if (doctor != null)
-                    {
-                        // Get medical records for the doctor
-                        records = await _context.MedicalRecords
-                            .Include(r => r.Patient)
-                            .Include(r => r.Doctor)
-                            .Include(r => r.Nurse)
-                            .Include(r => r.Prescription)
-                            .Where(r => r.DoctorId == doctor.Id )
-                            .AsNoTracking()
-                            .ToListAsync();
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException("The user is not authorized to view medical records.");
-                }
-
-                // Ensure records exist or throw an exception
-                if (records == null || !records.Any())
-                {
-                    throw new ArgumentException("No medical records found for the given user.");
-                }
-
-                // Return mapped MedicalRecordDto
-                return _mapper.Map<IEnumerable<MedicalRecordDto>>(records);
-            }
-        
-
-            //////////////////////////////////////////////////////////////////////////////////////////////////
-            public async Task<IEnumerable<MedicalRecordDto>> GetAllMedicalRecordsAsync()
+        public async Task<IEnumerable<MedicalRecordDto>> GetMedicalRecordByUserId(string id)
         {
-            var records = await _context.MedicalRecords
-                .Include(r => r.Patient) // Include patient for detailed DTO
-                .Include(r => r.Doctor)
-                .Include(r => r.Nurse)
-                .Include(r => r.Prescription)
-                .AsNoTracking()
-                .ToListAsync();
+            var userRoles = await _authService.GetRolesById(id);
+            if (userRoles == null)
+                throw new ArgumentException("No roles found for the user.");
+            IEnumerable<MedicalRecord> records = Enumerable.Empty<MedicalRecord>();
+            if (userRoles.Contains(StaticUserRoles.PATIENT))
+            {
+                var patient = await _patientService.GetPatientByUserIdAsync(id);
+                if (patient != null)
+                {
+                    var filter = Builders<MedicalRecord>.Filter.Eq(r => r.PatientId, patient.PatientId);
+                    records = await _mongoContext.MedicalRecords.Find(filter).ToListAsync();
+                }
+            }
+            else if (userRoles.Contains(StaticUserRoles.DOCTOR))
+            {
+                var doctor = await _doctorService.GetDoctorByUserIdAsync(id);
+                if (doctor != null)
+                {
+                    var filter = Builders<MedicalRecord>.Filter.Eq(r => r.DoctorId, doctor.Id);
+                    records = await _mongoContext.MedicalRecords.Find(filter).ToListAsync();
+                }
+            }
+            else if (userRoles.Contains(StaticUserRoles.NURSE))
+            {
+                var nurse = await _nurseService.GetNurseByUserIdAsync(id);
+                if (nurse != null)
+                {
+                    var filter = Builders<MedicalRecord>.Filter.Eq(r => r.NurseId, nurse.Id);
+                    records = await _mongoContext.MedicalRecords.Find(filter).ToListAsync();
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The user is not authorized to view medical records.");
+            }
+            if (records == null || !records.Any())
+                throw new ArgumentException("No medical records found for the given user.");
+            return _mapper.Map<IEnumerable<MedicalRecordDto>>(records);
+        }
 
+        public async Task<IEnumerable<MedicalRecordDto>> GetAllMedicalRecordsAsync()
+        {
+            var records = await _mongoContext.MedicalRecords.Find(_ => true).ToListAsync();
             return _mapper.Map<IEnumerable<MedicalRecordDto>>(records);
         }
 
         public async Task<GeneralServiceResponseDto> CreateMedicalRecordAsync(CUMedicalRecordDto recordDto)
         {
-            // Validate that the patient exists
-            await ValidatePatientExistsAsync(recordDto.PatientId);
+            // Validate and fetch related entities
+            var patient = await _patientService.GetPatientByIdAsync(recordDto.PatientId);
+            if (patient == null)
+                throw new ArgumentException($"Patient with ID {recordDto.PatientId} not found.");
+            DoctorDto doctor = null;
             if (recordDto.DoctorId.HasValue)
-                await ValidateDoctorExistsAsync(recordDto.DoctorId.Value);
+            {
+                doctor = await _doctorService.GetDoctorByIdAsync(recordDto.DoctorId.Value);
+                if (doctor == null)
+                    throw new ArgumentException($"Doctor with ID {recordDto.DoctorId.Value} not found.");
+            }
+            NurseDto nurse = null;
             if (recordDto.NurseId.HasValue)
-                await ValidateNurseExistsAsync(recordDto.NurseId.Value);
+            {
+                nurse = await _nurseService.GetNurseByIdAsync(recordDto.NurseId.Value);
+                if (nurse == null)
+                    throw new ArgumentException($"Nurse with ID {recordDto.NurseId.Value} not found.");
+            }
+            PrescriptionDto prescription = null;
             if (recordDto.PrescriptionId.HasValue)
-                await ValidatePrescriptionExistsAsync(recordDto.PrescriptionId.Value);
-
+            {
+                prescription = await _prescriptionService.GetPrescriptionByIdAsync(recordDto.PrescriptionId.Value);
+                if (prescription == null)
+                    throw new ArgumentException($"Prescription with ID {recordDto.PrescriptionId.Value} not found.");
+            }
+            // Map and snapshot
             var record = _mapper.Map<MedicalRecord>(recordDto);
             record.RecordDate = DateTime.Now;
-
-            await _context.MedicalRecords.AddAsync(record);
-            await _context.SaveChangesAsync();
+            record.PatientInfo = new PatientSnapshot
+            {
+                PatientId = patient.PatientId,
+                FirstName = patient.FirstName,
+                LastName = patient.LastName,
+                DateOfBirth = patient.DateOfBirth,
+                Gender = patient.Gender,
+                ContactInfo = patient.ContactInfo,
+                UserId = patient.UserId
+            };
+            if (doctor != null)
+            {
+                record.DoctorInfo = new DoctorSnapshot
+                {
+                    Id = doctor.Id,
+                    FirstName = doctor.FirstName,
+                    LastName = doctor.LastName,
+                    Gender = doctor.Gender,
+                    ContactInfo = doctor.ContactInfo,
+                    DateOfBirth = doctor.DateOfBirth,
+                    DateHired = doctor.DateHired,
+                    Specialty = doctor.Specialty,
+                    Qualifications = doctor.Qualifications,
+                    IsAvailable = doctor.IsAvailable,
+                    DepartmentId = doctor.DepartmentId,
+                    UserId = doctor.UserId
+                };
+            }
+            if (nurse != null)
+            {
+                record.NurseInfo = new NurseSnapshot
+                {
+                    Id = nurse.Id,
+                    FirstName = nurse.FirstName,
+                    LastName = nurse.LastName,
+                    Gender = nurse.Gender,
+                    ContactInfo = nurse.ContactInfo,
+                    DateOfBirth = nurse.DateOfBirth,
+                    DateHired = nurse.DateHired,
+                    Qualifications = nurse.Qualifications,
+                    IsAvailable = nurse.IsAvailable,
+                    DepartmentId = nurse.DepartmentId,
+                    UserId = nurse.UserId
+                };
+            }
+            if (prescription != null)
+            {
+                record.PrescriptionInfo = new PrescriptionSnapshot
+                {
+                    Id = prescription.Id,
+                    PatientId = prescription.PatientId,
+                    PatientName = prescription.PatientName,
+                    DoctorId = prescription.DoctorId,
+                    DoctorName = prescription.DoctorName,
+                    DateIssued = prescription.DateIssued,
+                    MedicationName = prescription.MedicationName,
+                    Dosage = prescription.Dosage,
+                    Instructions = prescription.Instructions
+                };
+            }
+            await _mongoContext.MedicalRecords.InsertOneAsync(record);
             return new GeneralServiceResponseDto()
             {
                 IsSucceed = true,
@@ -145,16 +199,93 @@ namespace backend.Core.Services
 
         public async Task<GeneralServiceResponseDto> UpdateMedicalRecordAsync(int recordId, CUMedicalRecordDto recordDto)
         {
-            // Fetch the existing medical record from the database, including the associated patient.
-            var record = await _context.MedicalRecords
-                .Include(r => r.Patient) // Include patient for validation
-                .Include(r => r.Doctor)
-                .Include(r => r.Nurse)
-                .Include(r => r.Prescription)
-                .FirstOrDefaultAsync(r => r.Id == recordId);
-
-            // Check if the record exists; if not, return a failure response.
-            if (record == null)
+            // Validate and fetch related entities
+            var patient = await _patientService.GetPatientByIdAsync(recordDto.PatientId);
+            if (patient == null)
+                throw new ArgumentException($"Patient with ID {recordDto.PatientId} not found.");
+            DoctorDto doctor = null;
+            if (recordDto.DoctorId.HasValue)
+            {
+                doctor = await _doctorService.GetDoctorByIdAsync(recordDto.DoctorId.Value);
+                if (doctor == null)
+                    throw new ArgumentException($"Doctor with ID {recordDto.DoctorId.Value} not found.");
+            }
+            NurseDto nurse = null;
+            if (recordDto.NurseId.HasValue)
+            {
+                nurse = await _nurseService.GetNurseByIdAsync(recordDto.NurseId.Value);
+                if (nurse == null)
+                    throw new ArgumentException($"Nurse with ID {recordDto.NurseId.Value} not found.");
+            }
+            PrescriptionDto prescription = null;
+            if (recordDto.PrescriptionId.HasValue)
+            {
+                prescription = await _prescriptionService.GetPrescriptionByIdAsync(recordDto.PrescriptionId.Value);
+                if (prescription == null)
+                    throw new ArgumentException($"Prescription with ID {recordDto.PrescriptionId.Value} not found.");
+            }
+            // Build update definition with denormalized data
+            var update = Builders<MedicalRecord>.Update
+                .Set(r => r.PatientId, recordDto.PatientId)
+                .Set(r => r.PatientInfo, new PatientSnapshot
+                {
+                    PatientId = patient.PatientId,
+                    FirstName = patient.FirstName,
+                    LastName = patient.LastName,
+                    DateOfBirth = patient.DateOfBirth,
+                    Gender = patient.Gender,
+                    ContactInfo = patient.ContactInfo,
+                    UserId = patient.UserId
+                })
+                .Set(r => r.DoctorId, recordDto.DoctorId)
+                .Set(r => r.DoctorInfo, doctor != null ? new DoctorSnapshot
+                {
+                    Id = doctor.Id,
+                    FirstName = doctor.FirstName,
+                    LastName = doctor.LastName,
+                    Gender = doctor.Gender,
+                    ContactInfo = doctor.ContactInfo,
+                    DateOfBirth = doctor.DateOfBirth,
+                    DateHired = doctor.DateHired,
+                    Specialty = doctor.Specialty,
+                    Qualifications = doctor.Qualifications,
+                    IsAvailable = doctor.IsAvailable,
+                    DepartmentId = doctor.DepartmentId,
+                    UserId = doctor.UserId
+                } : null)
+                .Set(r => r.NurseId, recordDto.NurseId)
+                .Set(r => r.NurseInfo, nurse != null ? new NurseSnapshot
+                {
+                    Id = nurse.Id,
+                    FirstName = nurse.FirstName,
+                    LastName = nurse.LastName,
+                    Gender = nurse.Gender,
+                    ContactInfo = nurse.ContactInfo,
+                    DateOfBirth = nurse.DateOfBirth,
+                    DateHired = nurse.DateHired,
+                    Qualifications = nurse.Qualifications,
+                    IsAvailable = nurse.IsAvailable,
+                    DepartmentId = nurse.DepartmentId,
+                    UserId = nurse.UserId
+                } : null)
+                .Set(r => r.PrescriptionId, recordDto.PrescriptionId)
+                .Set(r => r.PrescriptionInfo, prescription != null ? new PrescriptionSnapshot
+                {
+                    Id = prescription.Id,
+                    PatientId = prescription.PatientId,
+                    PatientName = prescription.PatientName,
+                    DoctorId = prescription.DoctorId,
+                    DoctorName = prescription.DoctorName,
+                    DateIssued = prescription.DateIssued,
+                    MedicationName = prescription.MedicationName,
+                    Dosage = prescription.Dosage,
+                    Instructions = prescription.Instructions
+                } : null)
+                .Set(r => r.RecordDate, DateTime.Now)
+                .Set(r => r.RecordDetails, recordDto.RecordDetails);
+            var filter = Builders<MedicalRecord>.Filter.Eq(r => r.Id, recordId);
+            var result = await _mongoContext.MedicalRecords.UpdateOneAsync(filter, update);
+            if (result.MatchedCount == 0)
             {
                 return new GeneralServiceResponseDto
                 {
@@ -163,105 +294,18 @@ namespace backend.Core.Services
                     Message = $"Medical record with ID {recordId} not found."
                 };
             }
-
-            // Validate that the patient specified in the incoming DTO exists.
-            try
-            {
-                await ValidatePatientExistsAsync(recordDto.PatientId);
-                if (recordDto.DoctorId.HasValue)
-                    await ValidateDoctorExistsAsync(recordDto.DoctorId.Value);
-                if (recordDto.NurseId.HasValue)
-                    await ValidateNurseExistsAsync(recordDto.NurseId.Value);
-                if (recordDto.PrescriptionId.HasValue)
-                    await ValidatePrescriptionExistsAsync(recordDto.PrescriptionId.Value);
-            }
-            catch (ArgumentException ex)
-            {
-                return new GeneralServiceResponseDto
-                {
-                    IsSucceed = false,
-                    StatusCode = 404,
-                    Message = ex.Message
-                };
-            }
-
-            // Map the incoming DTO to the existing record entity.
-            _mapper.Map(recordDto, record);
-
-            // Save the changes to the database.
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                // Handle exceptions related to the database update and return a failure response.
-                return new GeneralServiceResponseDto
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = "An error occurred while updating the medical record."
-                };
-            }
-
-            // Return a successful response.
             return new GeneralServiceResponseDto
             {
                 IsSucceed = true,
                 StatusCode = 200,
-                Message = $"Medical record with ID {recordId} has been updated successfully."
+                Message = "MedicalRecord Updated"
             };
         }
 
-
         public async Task DeleteMedicalRecordAsync(int recordId)
         {
-            var record = await _context.MedicalRecords.FindAsync(recordId);
-
-            if (record == null)
-            {
-                throw new ArgumentException($"Medical record with ID {recordId} not found.");
-            }
-
-            _context.MedicalRecords.Remove(record);
-            await _context.SaveChangesAsync();
+            var filter = Builders<MedicalRecord>.Filter.Eq(r => r.Id, recordId);
+            await _mongoContext.MedicalRecords.DeleteOneAsync(filter);
         }
-
-        private async Task ValidatePatientExistsAsync(int patientId)
-        {
-            var patientExists = await _context.Patients.AnyAsync(p => p.PatientId == patientId);
-            if (!patientExists)
-            {
-                throw new ArgumentException($"Patient with ID {patientId} not found.");
-            }
-        }
-
-        private async Task ValidateDoctorExistsAsync(int doctorId)
-        {
-            var doctorExists = await _context.Doctors.AnyAsync(d => d.Id == doctorId);
-            if (!doctorExists)
-            {
-                throw new ArgumentException($"Doctor with ID {doctorId} not found.");
-            }
-        }
-
-        private async Task ValidateNurseExistsAsync(int nurseId)
-        {
-            var nurseExists = await _context.Nurses.AnyAsync(n => n.Id == nurseId);
-            if (!nurseExists)
-            {
-                throw new ArgumentException($"Nurse with ID {nurseId} not found.");
-            }
-        }
-
-        private async Task ValidatePrescriptionExistsAsync(int prescriptionId)
-        {
-            var prescriptionExists = await _context.Prescriptions.AnyAsync(p => p.Id == prescriptionId);
-            if (!prescriptionExists)
-            {
-                throw new ArgumentException($"Prescription with ID {prescriptionId} not found.");
-            }
-        }
-
     }
 }
