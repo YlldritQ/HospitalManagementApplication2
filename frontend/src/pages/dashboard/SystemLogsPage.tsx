@@ -18,7 +18,7 @@ const SystemLogsPage = () => {
       setLogs(data);
       setLoading(false);
     } catch (error) {
-      toast.error("An Error Happend . Please Contact Admins");
+      toast.error("An error happened. Please contact admins.");
       setLoading(false);
     }
   };
@@ -36,19 +36,24 @@ const SystemLogsPage = () => {
   }
 
   return (
-    <div className="pageTemplate2 p-6 bg-gray-800">
-      <h1 className="text-3xl font-bold text-white mb-4">System Logs</h1>
-      <div className="w-full h-full p-4 flex flex-col justify-start items-stretch gap-2 bg-gray-900 border-2 rounded-lg">
-        <div className="grid grid-cols-6 p-2 bg-gray-700 text-gray-200 font-semibold border-b-2 border-gray-500">
+    <div className="min-h-screen w-full p-6">
+      <h1 className="text-3xl font-bold text-white mb-4">
+        System Logs
+      </h1>
+
+      <div className="w-full p-4 flex flex-col justify-start items-stretch gap-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+        {/* Header Row */}
+        <div className="grid grid-cols-6 p-2 bg-white/10 text-gray-200 font-semibold border-b border-white/10 rounded-t-xl">
           <span>No</span>
           <span>Date</span>
           <span>Username</span>
           <span className="col-span-3">Description</span>
         </div>
+
         {logs.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-6 p-2 hover:bg-gray-800 transition-colors duration-200 border-b border-gray-600"
+            className="grid grid-cols-6 p-2 hover:bg-white/10 transition-colors duration-200 border-b border-white/10"
           >
             <span className="text-gray-300">{index + 1}</span>
             <span className="text-gray-300">{moment(item.createdAt).fromNow()}</span>
@@ -56,11 +61,15 @@ const SystemLogsPage = () => {
             <span className="col-span-3 text-gray-300">{item.description}</span>
           </div>
         ))}
+
+        {logs.length === 0 && (
+          <div className="text-center py-8 text-gray-400">
+            No logs found.
+          </div>
+        )}
       </div>
     </div>
   );
-  
-
 };
 
 export default SystemLogsPage;

@@ -14,22 +14,22 @@ const UsersTableSection = ({ usersList }: IProps) => {
   const navigate = useNavigate();
 
   const RoleClassNameCreator = (Roles: string[]) => {
-    let className = "px-3 py-1 text-black rounded-3xl";
+    let className = "px-3 py-1 text-white text-xs rounded-3xl ";
     if (Roles.includes(RolesEnum.PATIENT)) {
-      className += "bg-[#3b3549]";
+      className += "bg-emerald-600";
     } else if (Roles.includes(RolesEnum.ADMIN)) {
-      className += "bg-[#9333ea]";
+      className += "bg-purple-600";
     } else if (Roles.includes(RolesEnum.NURSE)) {
-      className += "bg-[#0b96bc]";
+      className += "bg-blue-600";
     } else if (Roles.includes(RolesEnum.DOCTOR)) {
-      className += "bg-[#fec223]";
+      className += "bg-yellow-500 text-black";
     }
     return className;
   };
+
   return (
-    <div className="bg-white p-2 roundedl-md">
-      <h1 className="text-xl font-bold">Users Table</h1>
-      <div className="grid grid-cols-7 px-2 my-1 text-lg font-semibold border border-gray-300 rounded-md">
+    <div>
+      <div className="grid grid-cols-7 gap-2 px-2 py-2 text-sm font-semibold text-gray-300 border-b border-white/10">
         <div>No</div>
         <div>User Name</div>
         <div>First Name</div>
@@ -41,14 +41,20 @@ const UsersTableSection = ({ usersList }: IProps) => {
       {usersList.map((user, index) => (
         <div
           key={index}
-          className="grid grid-cols-7 px-2 h-12 my-1 border border-gray-200 hover:bg-gray-200 rounded-md"
+          className="grid grid-cols-7 gap-2 px-2 h-12 border-b border-white/5 hover:bg-white/10 transition duration-200"
         >
-          <div className="flex items-center">{index + 1}</div>
-          <div className="flex items-center font-semibold">{user.userName}</div>
-          <div className="flex items-center ">{user.firstName}</div>
-          <div className="flex items-center ">{user.lastName}</div>
-          <div className="flex items-center ">
-            {moment(user.createdAt).format("YYYY-MM-DD|HH:mm")}
+          <div className="flex items-center text-gray-300">{index + 1}</div>
+          <div className="flex items-center font-medium text-gray-300">
+            {user.userName}
+          </div>
+          <div className="flex items-center text-gray-300">
+            {user.firstName}
+          </div>
+          <div className="flex items-center text-gray-300">
+            {user.lastName}
+          </div>
+          <div className="flex items-center text-gray-300">
+            {moment(user.createdAt).format("YYYY-MM-DD | HH:mm")}
           </div>
           <div className="flex justify-center items-center">
             <span className={RoleClassNameCreator(user.roles)}>

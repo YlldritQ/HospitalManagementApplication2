@@ -19,9 +19,9 @@ import { getAllPatients } from "../../services/patientService";
 import toast from "react-hot-toast";
 
 const AppointmentsPage: React.FC = () => {
-  const { user: loggedInUser } = useAuth(); // Get the logged-in user
+  const { user: loggedInUser } = useAuth();
   const userId = loggedInUser?.id;
-  const userRole = loggedInUser?.roles; // Assuming role is part of the loggedInUser object
+  const userRole = loggedInUser?.roles;
   const [appointments, setAppointments] = useState<AppointmentDto[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
@@ -31,7 +31,6 @@ const AppointmentsPage: React.FC = () => {
   const [doctors, setDoctors] = useState<DoctorDto[]>([]);
   const [rooms, setRooms] = useState<RoomDto[]>([]);
 
-  // Fetch appointments based on user role
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
@@ -70,6 +69,7 @@ const AppointmentsPage: React.FC = () => {
       setAppointments(userAppointments);
     }
   };
+
   const findPatientName = (patientId: number) => {
     const patient = patients.find((p) => p.patientId === patientId);
     return patient
@@ -87,279 +87,155 @@ const AppointmentsPage: React.FC = () => {
     return room ? room.roomNumber : "Unknown Room";
   };
 
-  // Handle creating an appointment
   const handleCreateAppointment = async (appointment: CUAppointmentDto) => {
     const result = await createAppointment(appointment);
-    if(result.isSucceed){
-      toast.success(result.message);
-    }
-    else{
-      toast.error(result.message);
-    }
+    result.isSucceed
+      ? toast.success(result.message)
+      : toast.error(result.message);
     setModalOpen(false);
-    fetchAppointments(); // Refresh appointments list after creation
+    fetchAppointments();
   };
 
-  // Handle editing an appointment
   const handleEditAppointment = async (appointment: CUAppointmentDto) => {
     if (selectedAppointment) {
       const result = await updateAppointment(selectedAppointment.id, appointment);
-      if(result.isSucceed){
-        toast.success(result.message);
-      }
-      else{
-        toast.error(result.message);
-      }
+      result.isSucceed
+        ? toast.success(result.message)
+        : toast.error(result.message);
       setModalOpen(false);
-      fetchAppointments(); // Refresh appointments list after editing
+      fetchAppointments();
     }
   };
 
-  // Handle deleting an appointment
   const handleDeleteAppointment = async (id: number) => {
     await deleteAppointment(id);
-    fetchAppointments(); // Refresh appointments list after deletion
+    fetchAppointments();
   };
 
-  // Open the "Create Appointment" modal
   const openCreateModal = () => {
     setModalMode("create");
     setSelectedAppointment(null);
     setModalOpen(true);
   };
 
-  // Open the "Edit Appointment" modal
   const openEditModal = (appointment: AppointmentDto) => {
     setModalMode("edit");
     setSelectedAppointment(appointment);
     setModalOpen(true);
   };
 
+  const renderTable = () => (
+    <div className="w-full overflow-x-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6">
+      <table className="min-w-full divide-y divide-white/10">
+        <thead className="bg-white/10">
+          <tr>
+            <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+              Appointment Date
+            </th>
+            <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+              Patient
+            </th>
+            <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+              Doctor
+            </th>
+            <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+              Room
+            </th>
+            <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+              Status
+            </th>
+            <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-white/10">
+          {appointments.map((appointment) => (
+            <tr
+              key={appointment.id}
+              className="hover:bg-white/10 transition-colors duration-200"
+            >
+              <td className="py-4 px-6 text-gray-300">
+                {new Date(appointment.appointmentDate).toLocaleString()}
+              </td>
+              <td className="py-4 px-6 text-gray-300">
+                {findPatientName(appointment.patientId)}
+              </td>
+              <td className="py-4 px-6 text-gray-300">
+                {findDoctorName(appointment.doctorId)}
+              </td>
+              <td className="py-4 px-6 text-gray-300">
+                {findRoomNumber(appointment.roomId)}
+              </td>
+              <td className="py-4 px-6 text-gray-300">
+                {appointment.status}
+              </td>
+              <td className="py-4 px-6 flex space-x-2">
+                <button
+                  onClick={() => openEditModal(appointment)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteAppointment(appointment.id)}
+                  className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+          {appointments.length === 0 && (
+            <tr>
+              <td
+                colSpan={6}
+                className="py-8 text-center text-gray-400"
+              >
+                No appointments found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col items-start justify-start p-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 min-h-screen w-full">
+    <div className="min-h-screen w-full p-6">
       <h1 className="text-3xl font-bold text-white mb-8">Appointments</h1>
-      
-      {userRole?.includes("Admin") && (
-        <div className="mb-8 w-full">
-          <h2 className="text-2xl font-bold text-white mb-4">Admin View</h2>
 
-          {/* Create Appointment Button */}
-          <div className="mb-6">
-            <button
-              onClick={openCreateModal} // Open the create modal
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Create Appointment
-            </button>
+      {(userRole?.includes("Admin") ||
+        userRole?.includes("Patient")) && (
+          <div className="mb-8 w-full">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              {userRole?.includes("Admin")
+                ? "Admin View"
+                : "Patient View"}
+            </h2>
+
+            <div className="mb-6">
+              <button
+                onClick={openCreateModal}
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Create Appointment
+              </button>
+            </div>
+
+            {renderTable()}
           </div>
-
-          {/* Appointments Table */}
-          <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden shadow-lg">
-            <thead>
-              <tr className="bg-gray-900 text-white">
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Appointment Date
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Patient ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Doctor ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Room ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Status
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appointment) => (
-                <tr key={appointment.id} className="bg-gray-800 text-white">
-                  <td className="py-4 px-6">
-                    {new Date(appointment.appointmentDate).toLocaleString()}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findPatientName(appointment.patientId)}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findDoctorName(appointment.doctorId)}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findRoomNumber(appointment.roomId)}
-                  </td>
-                  <td className="py-4 px-6">{appointment.status}</td>
-                  <td className="py-4 px-6 flex space-x-2">
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => openEditModal(appointment)} // Open the edit modal
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
-                    >
-                      Edit
-                    </button>
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDeleteAppointment(appointment.id)} // Delete appointment
-                      className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {userRole?.includes("Patient") && (
-        <div className="mb-8 w-full">
-          <h2 className="text-2xl font-bold text-white mb-4">Patient View</h2>
-
-          {/* Create Appointment Button */}
-          <div className="mb-6">
-            <button
-              onClick={openCreateModal} // Open the create modal
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Create Appointment
-            </button>
-          </div>
-
-          {/* Appointments Table */}
-          <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden shadow-lg">
-            <thead>
-              <tr className="bg-gray-900 text-white">
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Appointment Date
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Patient ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Doctor ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Room ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Status
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appointment) => (
-                <tr key={appointment.id} className="bg-gray-800 text-white">
-                  <td className="py-4 px-6">
-                    {new Date(appointment.appointmentDate).toLocaleString()}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findPatientName(appointment.patientId)}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findDoctorName(appointment.doctorId)}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findRoomNumber(appointment.roomId)}
-                  </td>
-                  <td className="py-4 px-6">{appointment.status}</td>
-                  <td className="py-4 px-6 flex space-x-2">
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => openEditModal(appointment)} // Open the edit modal
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
-                    >
-                      Edit
-                    </button>
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDeleteAppointment(appointment.id)} // Delete appointment
-                      className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        )}
 
       {userRole?.includes("Doctor") && (
         <div className="mb-8 w-full">
-          <h2 className="text-2xl font-bold text-white mb-4">Doctor View</h2>
-
-          {/* Appointments Table */}
-          <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden shadow-lg">
-            <thead>
-              <tr className="bg-gray-900 text-white">
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Appointment Date
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Patient ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Doctor ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Room ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Status
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appointment) => (
-                <tr key={appointment.id} className="bg-gray-800 text-white">
-                  <td className="py-4 px-6">
-                    {new Date(appointment.appointmentDate).toLocaleString()}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findPatientName(appointment.patientId)}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findDoctorName(appointment.doctorId)}
-                  </td>
-                  <td className="py-4 px-6">
-                    {findRoomNumber(appointment.roomId)}
-                  </td>
-                  <td className="py-4 px-6">{appointment.status}</td>
-                  <td className="py-4 px-6 flex space-x-2">
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => openEditModal(appointment)} // Open the edit modal
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
-                    >
-                      Edit
-                    </button>
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDeleteAppointment(appointment.id)} // Delete appointment
-                      className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Doctor View
+          </h2>
+          {renderTable()}
         </div>
       )}
 
-      {/* Modal for creating/editing appointments */}
       {modalMode === "create" ? (
         <CreateAppointmentModal
           isOpen={isModalOpen}

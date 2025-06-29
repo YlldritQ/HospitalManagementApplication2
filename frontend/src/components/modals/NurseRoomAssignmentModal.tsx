@@ -1,165 +1,266 @@
-import React, { useEffect, useState } from 'react';
-import { getUnassignedRoomsForNurses } from '../../services/roomService'; // Adjust import path
-import { RoomDto } from '../../types/roomTypes';
-import { toast } from 'react-hot-toast';
-import { NurseRoomAssignmentDto } from '../../types/nurseTypes'; // Adjust import path
-import { getRoomsAssignedToNurse } from '../../services/nurseService';
+"use client"
+
+import type React from "react"
+import { useEffect, useState } from "react"
+import { getUnassignedRoomsForNurses } from "../../services/roomService"
+import type { RoomDto } from "../../types/roomTypes"
+import { toast } from "react-hot-toast"
+import type { NurseRoomAssignmentDto } from "../../types/nurseTypes"
+import { getRoomsAssignedToNurse } from "../../services/nurseService"
 
 interface NurseRoomAssignmentModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    nurseId: number;
-    departmentId: number;
-    onAssign: (dto: NurseRoomAssignmentDto) => void;
-    onRemove: (dto: NurseRoomAssignmentDto) => void;
+  isOpen: boolean
+  onClose: () => void
+  nurseId: number
+  departmentId: number
+  onAssign: (dto: NurseRoomAssignmentDto) => void
+  onRemove: (dto: NurseRoomAssignmentDto) => void
 }
 
-const NurseRoomAssignmentModal : React.FC<NurseRoomAssignmentModalProps> = ({ isOpen, onClose, nurseId, departmentId, onAssign, onRemove }) => {
-    const [unassignedRooms, setUnassignedRooms] = useState<RoomDto[]>([]);
-    const [assignedRooms, setAssignedRooms] = useState<RoomDto[]>([]);
-    const [selectedAssignRoomIds, setSelectedAssignRoomIds] = useState<number[]>([]);
-    const [selectedRemoveRoomIds, setSelectedRemoveRoomIds] = useState<number[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [mode, setMode] = useState<'assign' | 'remove'>('assign');
+const NurseRoomAssignmentModal: React.FC<NurseRoomAssignmentModalProps> = ({
+  isOpen,
+  onClose,
+  nurseId,
+  departmentId,
+  onAssign,
+  onRemove,
+}) => {
+  const [unassignedRooms, setUnassignedRooms] = useState<RoomDto[]>([])
+  const [assignedRooms, setAssignedRooms] = useState<RoomDto[]>([])
+  const [selectedAssignRoomIds, setSelectedAssignRoomIds] = useState<number[]>([])
+  const [selectedRemoveRoomIds, setSelectedRemoveRoomIds] = useState<number[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [mode, setMode] = useState<"assign" | "remove">("assign")
 
-    useEffect(() => {
-        if (isOpen) {
-            const fetchRooms = async () => {
-                setLoading(true);
-                try {
-                    const unassignedData = await getUnassignedRoomsForNurses(departmentId);
-                    setUnassignedRooms(unassignedData);
-                    const assignedData = await getRoomsAssignedToNurse(nurseId);
-                    setAssignedRooms(assignedData);
-                } catch (err) {
-                    toast.error('Failed to fetch rooms');
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchRooms();
+  useEffect(() => {
+    if (isOpen) {
+      const fetchRooms = async () => {
+        setLoading(true)
+        try {
+          const unassignedData = await getUnassignedRoomsForNurses(departmentId)
+          setUnassignedRooms(unassignedData)
+          const assignedData = await getRoomsAssignedToNurse(nurseId)
+          setAssignedRooms(assignedData)
+        } catch (err) {
+          toast.error("Failed to fetch rooms")
+        } finally {
+          setLoading(false)
         }
-    }, [isOpen, nurseId]);
+      }
+      fetchRooms()
+    }
+  }, [isOpen, nurseId, departmentId])
 
-    const handleRoomToggleAssign = (roomId: number) => {
-        setSelectedAssignRoomIds(prevIds =>
-            prevIds.includes(roomId) ? prevIds.filter(id => id !== roomId) : [...prevIds, roomId]
-        );
-    };
+  const handleRoomToggleAssign = (roomId: number) => {
+    setSelectedAssignRoomIds((prevIds) =>
+      prevIds.includes(roomId) ? prevIds.filter((id) => id !== roomId) : [...prevIds, roomId],
+    )
+  }
 
-    const handleRoomToggleRemove = (roomId: number) => {
-        setSelectedRemoveRoomIds(prevIds =>
-            prevIds.includes(roomId) ? prevIds.filter(id => id !== roomId) : [...prevIds, roomId]
-        );
-    };
+  const handleRoomToggleRemove = (roomId: number) => {
+    setSelectedRemoveRoomIds((prevIds) =>
+      prevIds.includes(roomId) ? prevIds.filter((id) => id !== roomId) : [...prevIds, roomId],
+    )
+  }
 
-    const handleSubmit = () => {
-        const dto: NurseRoomAssignmentDto = { nurseId, roomIds: mode === 'assign' ? selectedAssignRoomIds : selectedRemoveRoomIds };
+  const handleSubmit = () => {
+    if (mode === "assign" && selectedAssignRoomIds.length === 0) {
+      toast.error("Please select at least one room to assign")
+      return
+    }
+    if (mode === "remove" && selectedRemoveRoomIds.length === 0) {
+      toast.error("Please select at least one room to remove")
+      return
+    }
 
-        if (mode === 'assign') {
-            onAssign(dto);
-        } else if (mode === 'remove') {
-            onRemove(dto);
-        }
-        onClose();
-    };
+    const dto: NurseRoomAssignmentDto = {
+      nurseId,
+      roomIds: mode === "assign" ? selectedAssignRoomIds : selectedRemoveRoomIds,
+    }
 
-    if (!isOpen) return null;
+    if (mode === "assign") {
+      onAssign(dto)
+    } else if (mode === "remove") {
+      onRemove(dto)
+    }
 
-    return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg bg-gray-800 p-8 rounded-lg shadow-xl border border-gray-700">
-            <h2 className="text-3xl font-bold text-white mb-8 text-center">
-              Manage Rooms for Nurse
-            </h2>
-      
-            <div className="flex justify-center space-x-4 mb-8">
-              <button
-                onClick={() => setMode('assign')}
-                className={`py-2 px-4 rounded ${
-                  mode === 'assign' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
-                } transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              >
-                Assign Rooms
-              </button>
-              <button
-                onClick={() => setMode('remove')}
-                className={`py-2 px-4 rounded ${
-                  mode === 'remove' ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'
-                } transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500`}
-              >
-                Remove Rooms
-              </button>
-            </div>
-      
-            {loading ? (
-              <div className="text-center text-white">Loading...</div>
-            ) : (
-              <div>
-                {mode === 'assign' && (
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-white">Available Rooms to Assign</h3>
-                    <ul>
-                      {unassignedRooms.map((room) => (
-                        <li key={room.id} className="flex items-center mb-2 text-white">
-                          <input
-                            type="checkbox"
-                            id={`assign-room-${room.id}`}
-                            checked={selectedAssignRoomIds.includes(room.id)}
-                            onChange={() => handleRoomToggleAssign(room.id)}
-                            className="mr-2 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
-                          />
-                          <label htmlFor={`assign-room-${room.id}`}>{room.id}</label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-      
-                {mode === 'remove' && (
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-white">Assigned Rooms to Remove</h3>
-                    <ul>
-                      {assignedRooms.map((room) => (
-                        <li key={room.id} className="flex items-center mb-2 text-white">
-                          <input
-                            type="checkbox"
-                            id={`remove-room-${room.id}`}
-                            checked={selectedRemoveRoomIds.includes(room.id)}
-                            onChange={() => handleRoomToggleRemove(room.id)}
-                            className="mr-2 h-5 w-5 text-red-600 focus:ring-red-500 border-gray-600 rounded"
-                          />
-                          <label htmlFor={`remove-room-${room.id}`}>{room.id}</label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-      
-                <div className="mt-6 flex justify-end space-x-4">
-                  <button
-                    onClick={onClose}
-                    className="py-2 px-4 bg-gray-500 text-white font-semibold rounded-md transition duration-200 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    className={`py-2 px-4 rounded ${
-                      mode === 'assign' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700'
-                    } text-white font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                      mode === 'assign' ? 'focus:ring-blue-500' : 'focus:ring-red-500'
-                    }`}
-                  >
-                    {mode === 'assign' ? 'Assign' : 'Remove'}
-                  </button>
-                </div>
-              </div>
-            )}
+    // Reset selections
+    setSelectedAssignRoomIds([])
+    setSelectedRemoveRoomIds([])
+    onClose()
+  }
+
+  const handleClose = () => {
+    setSelectedAssignRoomIds([])
+    setSelectedRemoveRoomIds([])
+    onClose()
+  }
+
+  if (!isOpen) return null
+
+  const currentRooms = mode === "assign" ? unassignedRooms : assignedRooms
+  const selectedRoomIds = mode === "assign" ? selectedAssignRoomIds : selectedRemoveRoomIds
+  const handleRoomToggle = mode === "assign" ? handleRoomToggleAssign : handleRoomToggleRemove
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4 z-50">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-white">Room Management</h2>
+            <button
+              onClick={handleClose}
+              className="text-white hover:text-gray-200 transition-colors duration-200 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20"
+            >
+              ×
+            </button>
+          </div>
+          <p className="text-green-100 mt-1">Manage room assignments for nurse</p>
+        </div>
+
+        {/* Mode Toggle */}
+        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div className="flex bg-white rounded-lg p-1 shadow-inner">
+            <button
+              onClick={() => setMode("assign")}
+              className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 ${mode === "assign"
+                ? "bg-green-600 text-white shadow-md"
+                : "text-gray-600 hover:text-green-600 hover:bg-green-50"
+                }`}
+            >
+              Assign Rooms
+            </button>
+            <button
+              onClick={() => setMode("remove")}
+              className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200 ${mode === "remove"
+                ? "bg-red-600 text-white shadow-md"
+                : "text-gray-600 hover:text-red-600 hover:bg-red-50"
+                }`}
+            >
+              Remove Rooms
+            </button>
           </div>
         </div>
-      );
-      
-};
 
-export default NurseRoomAssignmentModal;
+        {/* Content */}
+        <div className="px-6 py-4 overflow-y-auto max-h-96">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+              <p className="text-gray-600 font-medium">Loading rooms...</p>
+            </div>
+          ) : (
+            <div>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                  {mode === "assign" ? "Available Rooms to Assign" : "Assigned Rooms to Remove"}
+                  <span className="text-sm font-normal text-gray-500 ml-2">
+                    ({currentRooms.length} {currentRooms.length === 1 ? "room" : "rooms"})
+                  </span>
+                </h3>
+
+                {currentRooms.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 font-medium">
+                      {mode === "assign" ? "No rooms available to assign" : "No rooms currently assigned"}
+                    </p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      {mode === "assign"
+                        ? "All rooms in this department are already assigned"
+                        : "This nurse has no room assignments"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {currentRooms.map((room) => (
+                      <div
+                        key={room.id}
+                        className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${selectedRoomIds.includes(room.id)
+                          ? mode === "assign"
+                            ? "border-green-500 bg-green-50"
+                            : "border-red-500 bg-red-50"
+                          : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+                          }`}
+                        onClick={() => handleRoomToggle(room.id)}
+                      >
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`${mode}-room-${room.id}`}
+                            checked={selectedRoomIds.includes(room.id)}
+                            onChange={() => handleRoomToggle(room.id)}
+                            className={`w-5 h-5 rounded border-2 mr-3 ${mode === "assign"
+                              ? "text-green-600 focus:ring-green-500 border-green-300"
+                              : "text-red-600 focus:ring-red-500 border-red-300"
+                              }`}
+                          />
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-800">Room {room.roomNumber || room.id}</div>
+                          </div>
+                        </div>
+                        {selectedRoomIds.includes(room.id) && (
+                          <div
+                            className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center ${mode === "assign" ? "bg-green-600" : "bg-red-600"
+                              }`}
+                          >
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="text-sm text-gray-600">
+              {selectedRoomIds.length > 0 && (
+                <span>
+                  {selectedRoomIds.length} room{selectedRoomIds.length !== 1 ? "s" : ""} selected
+                </span>
+              )}
+            </div>
+            <div className="flex gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleClose}
+                className="flex-1 sm:flex-none py-2 px-6 bg-gray-500 text-white font-semibold rounded-lg transition-all duration-200 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={selectedRoomIds.length === 0}
+                className={`flex-1 sm:flex-none py-2 px-6 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${mode === "assign"
+                  ? "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
+                  : "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
+                  }`}
+              >
+                {mode === "assign" ? "Assign Rooms" : "Remove Rooms"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default NurseRoomAssignmentModal

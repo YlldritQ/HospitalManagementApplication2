@@ -40,10 +40,6 @@ const UpdateTeam = lazy(() => import("../pages/dashboard/EditTeam"));
 const PlayerList = lazy(() => import("../pages/dashboard/PlayerList"));
 const UpdatePlayer = lazy(() => import("../pages/dashboard/EditPlayer"));
 const PlanetList = lazy(() => import("../pages/dashboard/PlanetList"));
-const LecturerList = lazy(() => import("../pages/dashboard/LecturerList"));
-const LectureList = lazy(() => import("../pages/dashboard/LectureList"));
-const UpdateLecturer = lazy(() => import("../pages/dashboard/EditLecturer"));
-const UpdateLecture = lazy(() => import("../pages/dashboard/EditLecture"));
 
 
 
@@ -52,7 +48,7 @@ const GlobalRouter = () => {
   return (
     <Routes>
       <Route element={<Layout />}>
-        
+
         <Route
           path={PATH_PUBLIC.register}
           element={
@@ -125,38 +121,6 @@ const GlobalRouter = () => {
             element={
               <Suspense fallback={<div>Loading...</div>}>
                 <PlanetList />
-              </Suspense>
-            }
-          />
-          <Route
-            path={PATH_DASHBOARD.lecturerList}
-            element={
-              <Suspense fallback={<div>Loading...</div>}>
-                <LecturerList />
-              </Suspense>
-            }
-          />
-          <Route
-            path={PATH_DASHBOARD.lectureList}
-            element={
-              <Suspense fallback={<div>Loading...</div>}>
-                <LectureList />
-              </Suspense>
-            }
-          />
-          <Route
-            path={PATH_DASHBOARD.updateLecturer}
-            element={
-              <Suspense fallback={<div>Loading...</div>}>
-                <UpdateLecturer />
-              </Suspense>
-            }
-          />
-          <Route
-            path={PATH_DASHBOARD.updateLecture}
-            element={
-              <Suspense fallback={<div>Loading...</div>}>
-                <UpdateLecture />
               </Suspense>
             }
           />
@@ -324,8 +288,8 @@ const GlobalRouter = () => {
           />
         </Route>
 
-        <Route element={<AuthGuard roles={adminDoctorPatientRoles}/>}>
-        <Route
+        <Route element={<AuthGuard roles={adminDoctorPatientRoles} />}>
+          <Route
             path={PATH_DASHBOARD.appointment}
             element={
               <Suspense fallback={<div>Loading...</div>}>
@@ -340,7 +304,7 @@ const GlobalRouter = () => {
                 <EditAppointment />
               </Suspense>
             }
-            />
+          />
         </Route>
 
         {/* Admin Routes */}

@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
-import {
-  getAllRooms,
-  deleteRoom,
-  updateRoom,
-  createRoom,
-} from "../../services/roomService"; // Adjust import path
-import { RoomDto, CURoomDto } from "../../types/roomTypes"; // Adjust import path
-import { toast, Toaster } from "react-hot-toast"; // Import ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import the CSS for toast notifications
-import RoomEditModal from "../../components/modals/RoomEditModal"; // Import the RoomEditModal component
+"use client";
+
+import React from "react";
+import { useEffect, useState } from "react";
+import { getAllRooms, deleteRoom, updateRoom, createRoom } from "../../services/roomService";
+import { RoomDto, CURoomDto } from "../../types/roomTypes";
+import { toast, Toaster } from "react-hot-toast";
+import RoomEditModal from "../../components/modals/RoomEditModal";
 import { DepartmentDto } from "../../types/departmentTypes";
 import { getDepartments } from "../../services/departmentService";
 import useAuth from "../../hooks/useAuth.hook";
@@ -22,6 +19,7 @@ const RoomList: React.FC = () => {
   const [departments, setDepartments] = useState<DepartmentDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -42,12 +40,19 @@ const RoomList: React.FC = () => {
   }, []);
 
   const handleDelete = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this room?")) {
+      return;
+    }
+
     try {
+      setDeletingId(id);
       await deleteRoom(id);
       setRooms(rooms.filter((room) => room.id !== id));
       toast.success("Room deleted successfully");
     } catch (err) {
       toast.error("Failed to delete room");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -65,11 +70,7 @@ const RoomList: React.FC = () => {
     if (selectedRoom) {
       try {
         await updateRoom(selectedRoom.id, roomDto);
-        setRooms(
-          rooms.map((room) =>
-            room.id === selectedRoom.id ? { ...room, ...roomDto } : room
-          )
-        );
+        setRooms(rooms.map((room) => (room.id === selectedRoom.id ? { ...room, ...roomDto } : room)));
         toast.success("Room updated successfully");
         setModalOpen(false);
       } catch (err) {
@@ -89,138 +90,117 @@ const RoomList: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="text-center">Loading...</div>;
-  if (error) return <div className="text-center text-red-600">{error}</div>;
+  const isAdmin = roles?.includes("Admin");
 
   return (
-    <div className="flex flex-col items-start justify-start p-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 min-h-screen w-full">
-      <h1 className="text-3xl font-bold text-white mb-8">Room List</h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#0a1b3d] via-[#0c254f] to-[#0a1b3d] p-6">
+      <div className="w-full max-w-7xl mx-auto">
 
-      {roles?.includes("Admin") && (
-        <div className="flex flex-col items-start justify-start p-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 min-h-screen w-full">
-          <div className="mb-6">
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white bg-clip-text ">
+            Room Management
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Monitor and manage hospital rooms and their availability
+          </p>
+        </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl backdrop-blur-sm">
+            <p className="text-red-400 font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Button Section */}
+        {isAdmin && (
+          <div className="mb-8">
             <button
               onClick={() => {
                 setSelectedRoom(null);
                 setModalOpen(true);
               }}
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
-              Add New Room
+              + Add New Room
             </button>
           </div>
+        )}
 
-          <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden shadow-lg">
-            <thead>
-              <tr className="bg-gray-900 text-white">
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Room Number
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Occupied
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Department
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rooms.map((room) => (
-                <tr key={room.id} className="border-b border-gray-700">
-                  <td className="py-4 px-6 text-white">{room.id}</td>
-                  <td className="py-4 px-6 text-white">{room.roomNumber}</td>
-                  <td className="py-4 px-6">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-white font-semibold ${
-                        room.isOccupied ? "bg-red-500" : "bg-green-500"
-                      }`}
-                    >
-                      {room.isOccupied ? "Occupied" : "Available"}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-white">
-                    {findDepartmentName(room.departmentId)}
-                  </td>
-                  <td className="py-4 px-6">
-                    <button
-                      onClick={() => openEditModal(room)}
-                      className="text-blue-400 hover:underline mr-4 transition duration-200"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(room.id)}
-                      className="text-red-400 hover:underline transition duration-200"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <Toaster />
-          {modalOpen && (
-            <RoomEditModal
-              isOpen={modalOpen}
-              onClose={() => setModalOpen(false)}
-              room={selectedRoom}
-              onUpdate={handleUpdate}
-              onCreate={handleCreate}
-            />
+        {/* Table Section */}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+          {rooms.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold text-gray-400 mb-2">No rooms found</h3>
+              <p className="text-gray-500">
+                No rooms have been created yet.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left">
+                <thead className="bg-white/10">
+                  <tr>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300">ID</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300">Room Number</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300">Status</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-gray-300">Department</th>
+                    {isAdmin && (
+                      <th className="px-6 py-4 text-sm font-semibold text-gray-300 text-right">Actions</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {rooms.map((room) => (
+                    <tr key={room.id} className="hover:bg-white/5 transition-colors">
+                      <td className="px-6 py-4 text-gray-300">{room.id}</td>
+                      <td className="px-6 py-4 text-gray-300">Room {room.roomNumber}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${room.isOccupied ? "bg-red-600/20 text-red-400" : "bg-green-600/20 text-green-400"}`}>
+                          {room.isOccupied ? "Occupied" : "Available"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-300">{findDepartmentName(room.departmentId)}</td>
+                      {isAdmin && (
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => openEditModal(room)}
+                              className="p-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors duration-200"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(room.id)}
+                              disabled={deletingId === room.id}
+                              className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors duration-200 disabled:opacity-50"
+                            >
+                              {deletingId === room.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
-      )}
-      {(roles?.includes("Doctor") ||
-        roles?.includes("Patient") ||
-        roles?.includes("Nurse")) && (
-        <div className="flex flex-col items-start justify-start p-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 min-h-screen w-full">
-          <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden shadow-lg">
-            <thead>
-              <tr className="bg-gray-900 text-white">
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  ID
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Room Number
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Occupied
-                </th>
-                <th className="py-4 px-6 text-left text-sm font-medium border-b border-gray-600">
-                  Department
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rooms.map((room) => (
-                <tr key={room.id} className="border-b border-gray-700">
-                  <td className="py-4 px-6 text-white">{room.id}</td>
-                  <td className="py-4 px-6 text-white">{room.roomNumber}</td>
-                  <td className="py-4 px-6">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-white font-semibold ${
-                        room.isOccupied ? "bg-red-500" : "bg-green-500"
-                      }`}
-                    >
-                      {room.isOccupied ? "Occupied" : "Available"}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-white">
-                    {findDepartmentName(room.departmentId)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+
+      </div>
+
+      <Toaster position="top-right" />
+
+      {modalOpen && (
+        <RoomEditModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          room={selectedRoom}
+          onUpdate={handleUpdate}
+          onCreate={handleCreate}
+        />
       )}
     </div>
   );

@@ -41,11 +41,7 @@ export const PATH_DASHBOARD = {
   planetList: "/dashboard/planet-list",
   updatePlanet: "/dashboard/edit-planet/:id",
   sateliteList: "/dashboard/satelite-list",
-  lecturerList: "/dashboard/lecturer-list",
-  lectureList: "/dashboard/lecture-list",
   updateSatelite: "/dashboard/edit-satelite/:id",
-  updateLecture: "/dashboard/edit-lecture/:id",
-  updateLecturer: "/dashboard/edit-lecturer/:id"
 };
 
 
