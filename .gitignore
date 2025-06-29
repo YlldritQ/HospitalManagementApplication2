@@ -3,6 +3,10 @@ node_modules/
 build/
 dist/
 
+.vs/*
+.vs/
+.vs
+
 # Ignore log files
 *.log
 

@@ -1,97 +1,91 @@
-import React, { useState, useEffect } from "react";
-import { CUAppointmentDto } from "../../types/appointmentTypes";
-import {
-  getDoctors,
-  getRoomsAssignedToDoctor,
-} from "../../services/doctorService";
-import {
-  getAllPatients,
-  getPatientByUserId,
-} from "../../services/patientService";
-import { DoctorDto } from "../../types/doctorTypes";
-import { PatientDto } from "../../types/patientTypes";
-import { RoomDto } from "../../types/roomTypes";
-import useAuth from "../../hooks/useAuth.hook";
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import type { CUAppointmentDto } from "../../types/appointmentTypes"
+import { getDoctors, getRoomsAssignedToDoctor } from "../../services/doctorService"
+import { getAllPatients, getPatientByUserId } from "../../services/patientService"
+import type { DoctorDto } from "../../types/doctorTypes"
+import type { PatientDto } from "../../types/patientTypes"
+import type { RoomDto } from "../../types/roomTypes"
+import useAuth from "../../hooks/useAuth.hook"
 
 interface CreateAppointmentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (appointment: CUAppointmentDto) => void;
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (appointment: CUAppointmentDto) => void
 }
 
-const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-}) => {
-  const [appointmentDate, setAppointmentDate] = useState("");
-  const [patientId, setPatientId] = useState("");
-  const { user: loggedInUser } = useAuth(); // Get the logged-in user
-  const userId = loggedInUser?.id;
-  const roles = loggedInUser?.roles;
-  const [doctorId, setDoctorId] = useState("");
-  const [roomId, setRoomId] = useState("");
+const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({ isOpen, onClose, onSubmit }) => {
+  const [appointmentDate, setAppointmentDate] = useState("")
+  const [patientId, setPatientId] = useState("")
+  const { user: loggedInUser } = useAuth()
+  const userId = loggedInUser?.id
+  const roles = loggedInUser?.roles
+  const [doctorId, setDoctorId] = useState("")
+  const [roomId, setRoomId] = useState("")
+  const [patients, setPatients] = useState<PatientDto[]>([])
+  const [doctors, setDoctors] = useState<DoctorDto[]>([])
+  const [rooms, setRooms] = useState<RoomDto[]>([])
 
-  const [patients, setPatients] = useState<PatientDto[]>([]);
-  const [doctors, setDoctors] = useState<DoctorDto[]>([]);
-  const [rooms, setRooms] = useState<RoomDto[]>([]);
+  const getCurrentDateTime = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const day = String(now.getDate()).padStart(2, "0")
+    const hours = String(now.getHours()).padStart(2, "0")
+    const minutes = String(now.getMinutes()).padStart(2, "0")
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+  }
 
   useEffect(() => {
     if (isOpen) {
-      getDoctors().then(setDoctors).catch(console.error);
-      getAllPatients().then(setPatients).catch(console.error);
-
-      // If the user is a patient, automatically set their patientId
+      getDoctors().then(setDoctors).catch(console.error)
+      getAllPatients().then(setPatients).catch(console.error)
       if (roles?.includes("Patient")) {
-        getPatientByUserId(userId).then((patientData) =>
-          setPatientId(String(patientData?.patientId))
-        );
+        getPatientByUserId(userId).then((patientData) => setPatientId(String(patientData?.patientId)))
       }
     }
-  }, [isOpen, roles, userId]);
+  }, [isOpen, roles, userId])
 
   useEffect(() => {
     if (doctorId) {
-      getRoomsAssignedToDoctor(Number(doctorId))
-        .then(setRooms)
-        .catch(console.error);
+      getRoomsAssignedToDoctor(Number(doctorId)).then(setRooms).catch(console.error)
     }
-  }, [doctorId]);
+  }, [doctorId])
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const localDate = new Date(appointmentDate);
-    const timezoneOffset = localDate.getTimezoneOffset() * 60000; // Offset in milliseconds
-    const utcDate = new Date(localDate.getTime() - timezoneOffset); 
+    e.preventDefault()
+    const localDate = new Date(appointmentDate)
+    const timezoneOffset = localDate.getTimezoneOffset() * 60000 // Offset in milliseconds
+    const utcDate = new Date(localDate.getTime() - timezoneOffset)
 
     const newAppointment: CUAppointmentDto = {
       appointmentDate: new Date(utcDate),
       patientId: Number(patientId),
       doctorId: Number(doctorId),
-      status: "Scheduled", // Default status for new appointments
+      status: "Scheduled",
       roomId: Number(roomId),
-    };
-    onSubmit(newAppointment);
-  };
+    }
+
+    onSubmit(newAppointment)
+  }
 
   const formatDate = (date: Date | string | null): string => {
-    if (!date) return "";
-    const dateObj = typeof date === "string" ? new Date(date) : date;
+    if (!date) return ""
+    const dateObj = typeof date === "string" ? new Date(date) : date
     if (!isNaN(dateObj.getTime())) {
-      const timezoneOffset = dateObj.getTimezoneOffset() * 60000; // Offset in milliseconds
-      const localDate = new Date(dateObj.getTime() - timezoneOffset);
-      return localDate.toISOString().substring(0, 16); // YYYY-MM-DDTHH:mm format
+      const timezoneOffset = dateObj.getTimezoneOffset() * 60000
+      const localDate = new Date(dateObj.getTime() - timezoneOffset)
+      return localDate.toISOString().substring(0, 16)
     }
-    return "";
-  };
+    return ""
+  }
 
   return isOpen ? (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 backdrop-blur-sm bg-opacity-50">
-      <div className="bg-gray-800 p-6 rounded-lg">
-        <h2 className="text-2xl font-bold mb-4 text-white">
-          Create Appointment
-        </h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 backdrop-blur-sm bg-opacity-50 z-50">
+      <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+        <h2 className="text-2xl font-bold mb-4 text-white">Create Appointment</h2>
         <form onSubmit={handleSubmit}>
           {/* Appointment Date */}
           <div className="mb-4">
@@ -103,6 +97,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
               id="appointmentDate"
               value={formatDate(appointmentDate)}
               onChange={(e) => setAppointmentDate(e.target.value)}
+              min={getCurrentDateTime()} // Prevent selecting past dates
               required
               className="w-full p-2 rounded bg-gray-700 text-white"
             />
@@ -181,8 +176,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                 <option value="">Select a room</option>
                 {rooms.map((room) => (
                   <option key={room.id} value={room.id}>
-                    Room {room.roomNumber} (
-                    {room.isOccupied ? "Occupied" : "Available"})
+                    Room {room.roomNumber} ({room.isOccupied ? "Occupied" : "Available"})
                   </option>
                 ))}
               </select>
@@ -194,21 +188,18 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             <button
               onClick={onClose}
               type="button"
-              className="bg-gray-500 text-white py-2 px-4 rounded mr-2"
+              className="bg-gray-500 text-white py-2 px-4 rounded mr-2 hover:bg-gray-600"
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="py-2 px-4 rounded bg-blue-600 text-white"
-            >
+            <button type="submit" className="py-2 px-4 rounded bg-blue-600 text-white hover:bg-blue-700">
               Create
             </button>
           </div>
         </form>
       </div>
     </div>
-  ) : null;
-};
+  ) : null
+}
 
-export default CreateAppointmentModal;
+export default CreateAppointmentModal

@@ -25,11 +25,11 @@ const AdminPage = () => {
             <p className="text-gray-700 mb-4">
               View and manage the list of patients across the system.
             </p>
-            <Button 
-              label="View Patients" 
-              onClick={() => handleButtonClick('/dashboard/patient-list')} 
-              variant="primary" 
-              type="button" 
+            <Button
+              label="View Patients"
+              onClick={() => handleButtonClick('/dashboard/patient-list')}
+              variant="primary"
+              type="button"
               className="text-white bg-[#3498DB] hover:bg-[#2980B9]"
             />
           </div>
@@ -42,11 +42,11 @@ const AdminPage = () => {
             <p className="text-gray-700 mb-4">
               View and manage the list of doctors in the system.
             </p>
-            <Button 
-              label="View Doctors" 
-              onClick={() => handleButtonClick('/dashboard/doctor-list')} 
-              variant="primary" 
-              type="button" 
+            <Button
+              label="View Doctors"
+              onClick={() => handleButtonClick('/dashboard/doctor-list')}
+              variant="primary"
+              type="button"
               className="text-white bg-[#2ECC71] hover:bg-[#27AE60]"
             />
           </div>
@@ -59,11 +59,11 @@ const AdminPage = () => {
             <p className="text-gray-700 mb-4">
               Access and review your personal logs and activities.
             </p>
-            <Button 
-              label="View Logs" 
-              onClick={() => handleButtonClick('/dashboard/system-logs')} 
-              variant="primary" 
-              type="button" 
+            <Button
+              label="View Logs"
+              onClick={() => handleButtonClick('/dashboard/system-logs')}
+              variant="primary"
+              type="button"
               className="text-white bg-[#E67E22] hover:bg-[#D35400]"
             />
           </div>
@@ -76,11 +76,11 @@ const AdminPage = () => {
             <p className="text-gray-700 mb-4">
               View and manage the list of nurses in the system.
             </p>
-            <Button 
-              label="View Nurses" 
-              onClick={() => handleButtonClick('/dashboard/nurse-list')} 
-              variant="primary" 
-              type="button" 
+            <Button
+              label="View Nurses"
+              onClick={() => handleButtonClick('/dashboard/nurse-list')}
+              variant="primary"
+              type="button"
               className="text-white bg-[#F39C12] hover:bg-[#E67E22]"
             />
           </div>
@@ -93,11 +93,11 @@ const AdminPage = () => {
             <p className="text-gray-700 mb-4">
               Manage user accounts, roles, and permissions.
             </p>
-            <Button 
-              label="Manage Users" 
-              onClick={() => handleButtonClick('/dashboard/users-management')} 
-              variant="primary" 
-              type="button" 
+            <Button
+              label="Manage Users"
+              onClick={() => handleButtonClick('/dashboard/users-management')}
+              variant="primary"
+              type="button"
               className="text-white bg-[#9B59B6] hover:bg-[#8E44AD]"
             />
           </div>

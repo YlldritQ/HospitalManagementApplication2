@@ -168,4 +168,15 @@ app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
 
 
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await DbSeeder.SeedRolesAsync(roleManager);
+
+    await DbInitializer.SeedAdminUserAsync(userManager, roleManager);
+}
+
+
 app.Run();
