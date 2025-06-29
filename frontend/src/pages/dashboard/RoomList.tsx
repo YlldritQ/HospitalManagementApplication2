@@ -9,6 +9,7 @@ import RoomEditModal from "../../components/modals/RoomEditModal";
 import { DepartmentDto } from "../../types/departmentTypes";
 import { getDepartments } from "../../services/departmentService";
 import useAuth from "../../hooks/useAuth.hook";
+import { DoorOpen } from "lucide-react";
 
 const RoomList: React.FC = () => {
   const [rooms, setRooms] = useState<RoomDto[]>([]);
@@ -95,12 +96,14 @@ const RoomList: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1b3d] via-[#0c254f] to-[#0a1b3d] p-6">
       <div className="w-full max-w-7xl mx-auto">
-
         {/* Header Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white bg-clip-text ">
-            Room Management
-          </h1>
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-blue-600/20 rounded-2xl backdrop-blur-sm border border-blue-500/20">
+              <DoorOpen className="w-8 h-8 text-blue-400" />
+            </div>
+            <h1 className="text-4xl font-bold text-white">Room Management</h1>
+          </div>
           <p className="text-gray-400 text-lg">
             Monitor and manage hospital rooms and their availability
           </p>
@@ -130,7 +133,9 @@ const RoomList: React.FC = () => {
 
         {/* Table Section */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-          {rooms.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12 text-gray-300">Loading rooms...</div>
+          ) : rooms.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-xl font-semibold text-gray-400 mb-2">No rooms found</h3>
               <p className="text-gray-500">
@@ -157,11 +162,18 @@ const RoomList: React.FC = () => {
                       <td className="px-6 py-4 text-gray-300">{room.id}</td>
                       <td className="px-6 py-4 text-gray-300">Room {room.roomNumber}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${room.isOccupied ? "bg-red-600/20 text-red-400" : "bg-green-600/20 text-green-400"}`}>
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${room.isOccupied
+                              ? "bg-red-600/20 text-red-400"
+                              : "bg-green-600/20 text-green-400"
+                            }`}
+                        >
                           {room.isOccupied ? "Occupied" : "Available"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-300">{findDepartmentName(room.departmentId)}</td>
+                      <td className="px-6 py-4 text-gray-300">
+                        {findDepartmentName(room.departmentId)}
+                      </td>
                       {isAdmin && (
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
@@ -188,7 +200,6 @@ const RoomList: React.FC = () => {
             </div>
           )}
         </div>
-
       </div>
 
       <Toaster position="top-right" />

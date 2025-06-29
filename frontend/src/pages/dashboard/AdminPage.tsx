@@ -1,6 +1,13 @@
-import PageAccessTemplate from '../../components/dashboard/page-access/PageAccessTemplate';
-import { FaUsersCog, FaUserMd, FaListAlt, FaTools, FaUserNurse } from 'react-icons/fa';
+"use client";
 
+import PageAccessTemplate from '../../components/dashboard/page-access/PageAccessTemplate';
+import {
+  FaUsersCog,
+  FaUserMd,
+  FaListAlt,
+  FaTools,
+  FaUserNurse
+} from 'react-icons/fa';
 import Button from '../../components/general/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,17 +19,17 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="pageTemplate2 bg-[#F0F4F8]">
-      <PageAccessTemplate color='#2C3E50' icon={FaUsersCog} role='Admin' />
+    <div className="pageTemplate2">
+      <PageAccessTemplate color="#2C3E50" icon={FaUsersCog} role="Admin" />
 
-      <div className="container mx-auto p-6">
+      <div className="w-full p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Patients List Section */}
-          <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#3498DB]">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 border-t-4 border-[#3498DB]">
             <h2 className="text-2xl font-bold mb-4 flex items-center text-[#3498DB]">
               <FaListAlt className="mr-3 text-3xl" /> Patients List
             </h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-300 mb-4">
               View and manage the list of patients across the system.
             </p>
             <Button
@@ -35,11 +42,11 @@ const AdminPage = () => {
           </div>
 
           {/* Doctors List Section */}
-          <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#2ECC71]">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 border-t-4 border-[#2ECC71]">
             <h2 className="text-2xl font-bold mb-4 flex items-center text-[#2ECC71]">
               <FaUserMd className="mr-3 text-3xl" /> Doctors List
             </h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-300 mb-4">
               View and manage the list of doctors in the system.
             </p>
             <Button
@@ -52,11 +59,11 @@ const AdminPage = () => {
           </div>
 
           {/* My Logs Page Section */}
-          <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#E67E22]">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 border-t-4 border-[#E67E22]">
             <h2 className="text-2xl font-bold mb-4 flex items-center text-[#E67E22]">
               <FaTools className="mr-3 text-3xl" /> My Logs
             </h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-300 mb-4">
               Access and review your personal logs and activities.
             </p>
             <Button
@@ -69,11 +76,11 @@ const AdminPage = () => {
           </div>
 
           {/* Nurse List Section */}
-          <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#F39C12]">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 border-t-4 border-[#F39C12]">
             <h2 className="text-2xl font-bold mb-4 flex items-center text-[#F39C12]">
               <FaUserNurse className="mr-3 text-3xl" /> Nurse List
             </h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-300 mb-4">
               View and manage the list of nurses in the system.
             </p>
             <Button
@@ -86,11 +93,11 @@ const AdminPage = () => {
           </div>
 
           {/* User Management Section */}
-          <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#9B59B6]">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 border-t-4 border-[#9B59B6]">
             <h2 className="text-2xl font-bold mb-4 flex items-center text-[#9B59B6]">
               <FaUsersCog className="mr-3 text-3xl" /> User Management
             </h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-300 mb-4">
               Manage user accounts, roles, and permissions.
             </p>
             <Button

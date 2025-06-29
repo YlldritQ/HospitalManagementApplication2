@@ -12,6 +12,7 @@ import LatestUsersSection from "../../components/dashboard/users-management/Late
 import UserChartSection from "../../components/dashboard/users-management/UserChartSection";
 import UserCountSection from "../../components/dashboard/users-management/UserCountSection";
 import UsersTableSection from "../../components/dashboard/users-management/UsersTableSection";
+import { UserPlus } from "lucide-react";
 
 const UsersManagementPage = () => {
   const [users, setUsers] = useState<IAuthUser[]>([]);
@@ -48,33 +49,44 @@ const UsersManagementPage = () => {
   }
 
   return (
-    <div className="min-h-screen w-full p-6">
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-white">Users Management</h1>
-        <Button
-          label="+ Add New User"
-          onClick={() => setIsAddUserModalOpen(true)}
-          variant="primary"
-          type="button"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-        />
-      </div>
-
-      <UserCountSection usersList={users} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
-        <UserChartSection usersList={users} />
-        <LatestUsersSection usersList={users} />
-      </div>
-
-      <div className="mt-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-white">All Users</h2>
+    <div className="min-h-screen bg-gradient-to-br from-[#0a1b3d] via-[#0c254f] to-[#0a1b3d] p-6">
+      <div className="w-full">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-blue-600/20 rounded-2xl backdrop-blur-sm border border-blue-500/20">
+              <UserPlus className="w-8 h-8 text-blue-400" />
+            </div>
+            <h1 className="text-4xl font-bold text-white">
+              Users Management
+            </h1>
+          </div>
+          <Button
+            label="+ Add New User"
+            onClick={() => setIsAddUserModalOpen(true)}
+            variant="primary"
+            type="button"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          />
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6">
-          <UsersTableSection usersList={users} />
+        <UserCountSection usersList={users} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
+          <UserChartSection usersList={users} />
+          <LatestUsersSection usersList={users} />
+        </div>
+
+        <div className="mt-12">
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-2xl font-bold text-white">
+              All Users
+            </h2>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6">
+            <UsersTableSection usersList={users} />
+          </div>
         </div>
       </div>
 

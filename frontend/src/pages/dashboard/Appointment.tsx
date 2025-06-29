@@ -17,6 +17,7 @@ import { getDoctors } from "../../services/doctorService";
 import { getAllRooms } from "../../services/roomService";
 import { getAllPatients } from "../../services/patientService";
 import toast from "react-hot-toast";
+import { Calendar } from "lucide-react";
 
 const AppointmentsPage: React.FC = () => {
   const { user: loggedInUser } = useAuth();
@@ -203,17 +204,22 @@ const AppointmentsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full p-6">
-      <h1 className="text-3xl font-bold text-white mb-8">Appointments</h1>
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-3 bg-blue-600/20 rounded-2xl backdrop-blur-sm border border-blue-500/20">
+            <Calendar className="w-8 h-8 text-blue-400" />
+          </div>
+          <h1 className="text-4xl font-bold text-white">Appointments</h1>
+        </div>
+        <p className="text-gray-400 text-lg">
+          Manage all medical appointments in one place
+        </p>
+      </div>
 
       {(userRole?.includes("Admin") ||
         userRole?.includes("Patient")) && (
           <div className="mb-8 w-full">
-            <h2 className="text-2xl font-bold text-white mb-4">
-              {userRole?.includes("Admin")
-                ? "Admin View"
-                : "Patient View"}
-            </h2>
-
             <div className="mb-6">
               <button
                 onClick={openCreateModal}
@@ -229,9 +235,6 @@ const AppointmentsPage: React.FC = () => {
 
       {userRole?.includes("Doctor") && (
         <div className="mb-8 w-full">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Doctor View
-          </h2>
           {renderTable()}
         </div>
       )}

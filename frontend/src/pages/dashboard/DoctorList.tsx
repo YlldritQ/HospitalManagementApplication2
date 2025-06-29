@@ -10,6 +10,7 @@ import { DoctorDto, DoctorRoomManagementDto } from '../../types/doctorTypes';
 import { toast, Toaster } from 'react-hot-toast';
 import { getDepartmentById } from '../../services/departmentService';
 import RoomAssignmentModal from '../../components/modals/RoomAssignmentModal';
+import { Stethoscope } from 'lucide-react';
 
 const DoctorList: React.FC = () => {
   const [doctors, setDoctors] = useState<DoctorDto[]>([]);
@@ -26,15 +27,17 @@ const DoctorList: React.FC = () => {
       try {
         const data = await getDoctors();
         setDoctors(data);
+
+        // Fetch unique departments
         const departmentIds = Array.from(
           new Set(data.map((doctor) => doctor.departmentId).filter((id) => id > 0))
         );
         const departmentPromises = departmentIds.map((id) => getDepartmentById(id));
         const departmentData = await Promise.all(departmentPromises);
         const departmentMap: Record<number, string> = {};
-        departmentData.forEach((department) => {
-          if (department) {
-            departmentMap[department.id] = department.name;
+        departmentData.forEach((dept) => {
+          if (dept) {
+            departmentMap[dept.id] = dept.name;
           }
         });
         setDepartments(departmentMap);
@@ -89,24 +92,55 @@ const DoctorList: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  if (loading) return <div className="text-center text-gray-300">Loading...</div>;
-  if (error) return <div className="text-center text-red-500">{error}</div>;
+  if (loading)
+    return <div className="text-center text-gray-300">Loading...</div>;
+
+  if (error)
+    return <div className="text-center text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen w-full p-6">
-      <h1 className="text-3xl font-bold text-white mb-8">Doctor List</h1>
+      {/* HEADER */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-3 bg-blue-600/20 rounded-2xl backdrop-blur-sm border border-blue-500/20">
+            <Stethoscope className="w-8 h-8 text-blue-400" />
+          </div>
+          <h1 className="text-4xl font-bold text-white">
+            Doctor List
+          </h1>
+        </div>
+        <p className="text-gray-400 text-lg">
+          Manage doctors, specialties, and room assignments
+        </p>
+      </div>
 
+      {/* TABLE */}
       <div className="w-full overflow-x-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6">
         <table className="min-w-full divide-y divide-white/10">
           <thead className="bg-white/10">
             <tr>
-              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">ID</th>
-              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">Name</th>
-              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">Specialty</th>
-              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">Contact Info</th>
-              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">Department</th>
-              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">Available</th>
-              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">Actions</th>
+              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+                ID
+              </th>
+              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+                Name
+              </th>
+              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+                Specialty
+              </th>
+              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+                Contact Info
+              </th>
+              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+                Department
+              </th>
+              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+                Available
+              </th>
+              <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
@@ -117,7 +151,7 @@ const DoctorList: React.FC = () => {
               >
                 <td className="py-4 px-6 text-gray-300">{doctor.id}</td>
                 <td className="py-4 px-6 text-gray-300">
-                  {`${doctor.firstName} ${doctor.lastName}`}
+                  {doctor.firstName} {doctor.lastName}
                 </td>
                 <td className="py-4 px-6 text-gray-300">{doctor.specialty}</td>
                 <td className="py-4 px-6 text-gray-300">{doctor.contactInfo}</td>
@@ -128,7 +162,9 @@ const DoctorList: React.FC = () => {
                 </td>
                 <td className="py-4 px-6">
                   <span
-                    className={`inline-block px-3 py-1 rounded-full text-white font-semibold ${doctor.isAvailable ? 'bg-green-500' : 'bg-red-500'
+                    className={`inline-block px-3 py-1 rounded-full text-white font-semibold ${doctor.isAvailable
+                        ? 'bg-green-500'
+                        : 'bg-red-500'
                       }`}
                   >
                     {doctor.isAvailable ? 'Available' : 'Not Available'}

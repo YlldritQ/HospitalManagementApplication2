@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllPatients, deletePatient } from "../../services/patientService";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth.hook";
+import { User } from "lucide-react";
 
 interface Patient {
   patientId: number;
@@ -89,7 +90,20 @@ const PatientList: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full p-6">
-      <h1 className="text-3xl font-bold text-white mb-8">Patient List</h1>
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-3 bg-emerald-600/20 rounded-2xl backdrop-blur-sm border border-emerald-500/20">
+            <User className="w-8 h-8 text-emerald-400" />
+          </div>
+          <h1 className="text-4xl font-bold text-white">
+            Patient List
+          </h1>
+        </div>
+        <p className="text-gray-400 text-lg">
+          Manage patient information and records
+        </p>
+      </div>
 
       <div className="w-full overflow-x-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6">
         <table className="min-w-full divide-y divide-white/10">

@@ -15,8 +15,6 @@ import { PatientDto } from "../../types/patientTypes";
 import { NurseDto } from "../../types/nurseTypes";
 import { getAllPrescriptions } from "../../services/prescriptionService";
 import { PrescriptionDto } from "../../types/prescriptionTypes";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 import NewMedicalRecordModal from "../../components/modals/NewMedicalRecordModal";
 import useAuth from "../../hooks/useAuth.hook";
 import {
@@ -36,11 +34,15 @@ import {
   X,
   Check
 } from "lucide-react";
+import {
+  generateMedicalRecordsPDF,
+  generatePrescriptionsPDF,
+} from "../../utils/exportMedicalRecords";
 
 const MedicalRecordsPage: React.FC = () => {
   const [records, setRecords] = useState<MedicalRecordDto[]>([]);
   const [patients, setPatients] = useState<PatientDto[]>([]);
-  const [patient, setPatient] = useState<PatientDto | null>();
+  const [patient, setPatient] = useState<PatientDto | null>(null);
   const [doctors, setDoctors] = useState<DoctorDto[]>([]);
   const [nurses, setNurses] = useState<NurseDto[]>([]);
   const { user: loggedInUser } = useAuth();
@@ -48,12 +50,8 @@ const MedicalRecordsPage: React.FC = () => {
   const userId = loggedInUser?.id;
   const [isModalOpen, setModalOpen] = useState(false);
   const [prescriptions, setPrescriptions] = useState<PrescriptionDto[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(
-    null
-  );
-  const [editingRecord, setEditingRecord] = useState<MedicalRecordDto | null>(
-    null
-  );
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
+  const [editingRecord, setEditingRecord] = useState<MedicalRecordDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const [sortColumn, setSortColumn] = useState<keyof MedicalRecordDto>("id");
@@ -64,7 +62,6 @@ const MedicalRecordsPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch medical records based on the user's role
         let fetchedRecords;
         if (
           roles?.includes("Admin") ||
@@ -79,23 +76,18 @@ const MedicalRecordsPage: React.FC = () => {
         }
         setRecords(fetchedRecords);
 
-        // Fetch patients
         const fetchedPatients = await getAllPatients();
         setPatients(fetchedPatients);
 
-        // Fetch doctors
         const fetchedDoctors = await getDoctors();
         setDoctors(fetchedDoctors);
 
-        // Fetch nurses
         const fetchedNurses = await getAllNurses();
         setNurses(fetchedNurses);
 
-        // Fetch prescriptions
         const allPrescriptions = await getAllPrescriptions();
         setPrescriptions(allPrescriptions);
 
-        // Fetch patient for non-admin roles
         if (roles?.includes("Patient")) {
           const patient = await getPatientByUserId(userId);
           setPatient(patient);
@@ -111,10 +103,7 @@ const MedicalRecordsPage: React.FC = () => {
 
   const handleCreate = async (recordDto: CUMedicalRecordDto) => {
     try {
-      console.log(recordDto);
-      const newRecord = await medicalRecordService.createMedicalRecord(
-        recordDto
-      );
+      const newRecord = await medicalRecordService.createMedicalRecord(recordDto);
       setRecords([...records, newRecord]);
       setModalOpen(false);
     } catch (err) {
@@ -193,459 +182,76 @@ const MedicalRecordsPage: React.FC = () => {
     );
   };
 
-  const generatePDF = () => {
-    if (selectedPatientId === null) {
-      setError("Please select a patient.");
-      return;
+  const handleDownloadRecords = () => {
+    if (roles?.includes("Patient")) {
+      if (!patient) {
+        setError("Selected patient not found.");
+        return;
+      }
+      const patientRecords = records.filter(
+        (r) => r.patientId === patient.patientId
+      );
+      generateMedicalRecordsPDF(patient, patientRecords, doctors, nurses, prescriptions);
+    } else {
+      if (selectedPatientId === null) {
+        setError("Please select a patient.");
+        return;
+      }
+      const selectedPatient = patients.find(
+        (p) => p.patientId === selectedPatientId
+      );
+      if (!selectedPatient) {
+        setError("Selected patient not found.");
+        return;
+      }
+      const patientRecords = records.filter(
+        (r) => r.patientId === selectedPatientId
+      );
+      generateMedicalRecordsPDF(selectedPatient, patientRecords, doctors, nurses, prescriptions);
     }
-
-    const patientRecords = records.filter(
-      (record) => record.patientId === selectedPatientId
-    );
-    const patient = patients.find((p) => p.patientId === selectedPatientId);
-
-    if (!patient) {
-      setError("Selected patient not found.");
-      return;
-    }
-
-    const doc = new jsPDF();
-
-    doc.setFontSize(20);
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      `Medical Records for ${patient.firstName} ${patient.lastName}`,
-      doc.internal.pageSize.getWidth() / 2,
-      20,
-      { align: "center" }
-    );
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 25, doc.internal.pageSize.getWidth() - 15, 25);
-
-    doc.setFontSize(14);
-    doc.text(`Patient Details:`, 14, 35);
-    doc.setFontSize(12);
-    doc.text(`ID: ${patient.patientId}`, 16, 42);
-    doc.text(`Name: ${patient.firstName} ${patient.lastName}`, 16, 48);
-    doc.text(
-      `Date of Birth: ${new Date(patient.dateOfBirth).toLocaleDateString()}`,
-      16,
-      54
-    );
-    doc.text(`Gender: ${patient.gender || "Unknown"}`, 16, 60);
-    doc.text(`Contact: ${patient.contactInfo || "N/A"}`, 16, 66);
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 72, doc.internal.pageSize.getWidth() - 15, 72);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Medical Records:`, 14, 80);
-    doc.setFont("helvetica", "normal");
-
-    let yPosition = 90;
-
-    patientRecords.forEach((record, index) => {
-      const doctor = doctors.find((d) => d.id === record.doctorId);
-      const nurse = nurses.find((n) => n.id === record.nurseId);
-      const recordPrescriptions =
-        record.prescriptionId !== undefined
-          ? prescriptions.find((p) => p.id === record.prescriptionId)
-            ? `${prescriptions.find((p) => p.id === record.prescriptionId)
-              ?.medicationName
-            } (${prescriptions.find((p) => p.id === record.prescriptionId)
-              ?.dosage
-            })`
-            : "N/A"
-          : "N/A";
-
-      doc.setFont("helvetica", "bold");
-      doc.text(`Record ${index + 1}:`, 14, yPosition);
-      yPosition += 8;
-
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        `Date: ${new Date(record.recordDate).toLocaleString()}`,
-        16,
-        yPosition
-      );
-      yPosition += 6;
-      doc.text(`Details: ${record.recordDetails}`, 16, yPosition);
-      yPosition += 6;
-      doc.text(
-        `Doctor: ${doctor
-          ? `${doctor.firstName} ${doctor.lastName} (Specialty: ${doctor.specialty})`
-          : "N/A"
-        }`,
-        16,
-        yPosition
-      );
-      yPosition += 6;
-      doc.text(
-        `Nurse: ${nurse ? `${nurse.firstName} ${nurse.lastName}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 6;
-      doc.text(`Prescriptions: ${recordPrescriptions || "N/A"}`, 16, yPosition);
-      yPosition += 10;
-
-      doc.setLineWidth(0.1);
-      doc.line(
-        15,
-        yPosition - 2,
-        doc.internal.pageSize.getWidth() - 15,
-        yPosition - 2
-      );
-      yPosition += 6;
-    });
-
-    doc.setFontSize(10);
-    doc.text(
-      `Generated on: ${new Date().toLocaleDateString()}`,
-      14,
-      doc.internal.pageSize.height - 10
-    );
-
-    doc.save(
-      `medical-records-${patient.firstName}-${patient.lastName
-      }-${new Date().getTime()}.pdf`
-    );
   };
 
-  const generatePrescriptionPDF = () => {
-    if (selectedPatientId === null) {
-      setError("Please select a patient.");
-      return;
+  const handleDownloadPrescriptions = () => {
+    if (roles?.includes("Patient")) {
+      if (!patient) {
+        setError("Selected patient not found.");
+        return;
+      }
+      const patientRecords = records.filter(
+        (r) => r.patientId === patient.patientId
+      );
+      generatePrescriptionsPDF(patient, patientRecords, doctors, prescriptions);
+    } else {
+      if (selectedPatientId === null) {
+        setError("Please select a patient.");
+        return;
+      }
+      const selectedPatient = patients.find(
+        (p) => p.patientId === selectedPatientId
+      );
+      if (!selectedPatient) {
+        setError("Selected patient not found.");
+        return;
+      }
+      const patientRecords = records.filter(
+        (r) => r.patientId === selectedPatientId
+      );
+      generatePrescriptionsPDF(selectedPatient, patientRecords, doctors, prescriptions);
     }
-
-    const patientRecords = records.filter(
-      (record) => record.patientId === selectedPatientId
-    );
-    const patient = patients.find((p) => p.patientId === selectedPatientId);
-
-    if (!patient) {
-      setError("Selected patient not found.");
-      return;
-    }
-
-    const doc = new jsPDF();
-
-    doc.setFontSize(20);
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      `Prescription Details for ${patient.firstName} ${patient.lastName}`,
-      doc.internal.pageSize.getWidth() / 2,
-      20,
-      { align: "center" }
-    );
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 25, doc.internal.pageSize.getWidth() - 15, 25);
-
-    doc.setFontSize(14);
-    doc.text(`Patient Details:`, 14, 35);
-    doc.setFontSize(12);
-    doc.text(`Name: ${patient.firstName} ${patient.lastName}`, 16, 48);
-    doc.text(
-      `Date of Birth: ${new Date(patient.dateOfBirth).toLocaleDateString()}`,
-      16,
-      54
-    );
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 60, doc.internal.pageSize.getWidth() - 15, 60);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Prescription Records:`, 14, 70);
-    doc.setFont("helvetica", "normal");
-
-    let yPosition = 80;
-
-    patientRecords.forEach((record) => {
-      const doctor = doctors.find((d) => d.id === record.doctorId);
-      const prescription = prescriptions.find(
-        (p) => p.id === record.prescriptionId
-      );
-
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        `Doctor: ${doctor ? `${doctor.firstName} ${doctor.lastName}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.text(
-        `Prescription: ${prescription ? `${prescription.medicationName}` : "N/A"
-        }`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.text(
-        `Dosage: ${prescription ? `${prescription.dosage}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.text(
-        `Instructions: ${prescription ? `${prescription.instructions}` : "N/A"
-        }`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-
-      doc.text(
-        `Date Issued: ${prescription ? `${prescription.dateIssued}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.setLineWidth(0.1);
-      doc.line(
-        15,
-        yPosition - 2,
-        doc.internal.pageSize.getWidth() - 15,
-        yPosition - 2
-      );
-      yPosition += 6;
-    });
-
-    doc.setFontSize(10);
-    doc.text(
-      `Generated on: ${new Date().toLocaleDateString()}`,
-      14,
-      doc.internal.pageSize.height - 10
-    );
-
-    doc.save(
-      `prescription-records-${patient.firstName}-${patient.lastName
-      }-${new Date().getTime()}.pdf`
-    );
   };
 
-  const generateMyPrescriptionPDF = () => {
-    if (!patient) {
-      setError("Selected patient not found.");
-      return;
-    }
+  const filteredRecords = records.filter((record) => {
+    const patient = patients.find(p => p.patientId === record.patientId);
+    const firstName = patient?.firstName || "";
+    const lastName = patient?.lastName || "";
+    const details = record.recordDetails || "";
 
-    const patientRecords = records.filter(
-      (record) => record.patientId === patient?.patientId
+    return (
+      details.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lastName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const doc = new jsPDF();
-
-    doc.setFontSize(20);
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      `Prescription Details for ${patient.firstName} ${patient.lastName}`,
-      doc.internal.pageSize.getWidth() / 2,
-      20,
-      { align: "center" }
-    );
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 25, doc.internal.pageSize.getWidth() - 15, 25);
-
-    doc.setFontSize(14);
-    doc.text(`Patient Details:`, 14, 35);
-    doc.setFontSize(12);
-    doc.text(`Name: ${patient.firstName} ${patient.lastName}`, 16, 48);
-    doc.text(
-      `Date of Birth: ${new Date(patient.dateOfBirth).toLocaleDateString()}`,
-      16,
-      54
-    );
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 60, doc.internal.pageSize.getWidth() - 15, 60);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Prescription Records:`, 14, 70);
-    doc.setFont("helvetica", "normal");
-
-    let yPosition = 80;
-
-    patientRecords.forEach((record) => {
-      const doctor = doctors.find((d) => d.id === record.doctorId);
-      const prescription = prescriptions.find(
-        (p) => p.id === record.prescriptionId
-      );
-
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        `Doctor: ${doctor ? `${doctor.firstName} ${doctor.lastName}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.text(
-        `Prescription: ${prescription ? `${prescription.medicationName}` : "N/A"
-        }`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.text(
-        `Dosage: ${prescription ? `${prescription.dosage}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.text(
-        `Instructions: ${prescription ? `${prescription.instructions}` : "N/A"
-        }`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-
-      doc.text(
-        `Date Issued: ${prescription ? `${prescription.dateIssued}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 10;
-      doc.setLineWidth(0.1);
-      doc.line(
-        15,
-        yPosition - 2,
-        doc.internal.pageSize.getWidth() - 15,
-        yPosition - 2
-      );
-      yPosition += 6;
-    });
-
-    doc.setFontSize(10);
-    doc.text(
-      `Generated on: ${new Date().toLocaleDateString()}`,
-      14,
-      doc.internal.pageSize.height - 10
-    );
-
-    doc.save(
-      `prescription-records-${patient.firstName}-${patient.lastName
-      }-${new Date().getTime()}.pdf`
-    );
-  };
-
-  const generateMyRecordsPDF = () => {
-    if (!patient) {
-      setError("Selected patient not found.");
-      return;
-    }
-
-    const patientRecords = records.filter(
-      (record) => record.patientId === patient?.patientId
-    );
-
-    const doc = new jsPDF();
-
-    doc.setFontSize(20);
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      `Medical Records for ${patient.firstName} ${patient.lastName}`,
-      doc.internal.pageSize.getWidth() / 2,
-      20,
-      { align: "center" }
-    );
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 25, doc.internal.pageSize.getWidth() - 15, 25);
-
-    doc.setFontSize(14);
-    doc.text(`Patient Details:`, 14, 35);
-    doc.setFontSize(12);
-    doc.text(`ID: ${patient.patientId}`, 16, 42);
-    doc.text(`Name: ${patient.firstName} ${patient.lastName}`, 16, 48);
-    doc.text(
-      `Date of Birth: ${new Date(patient.dateOfBirth).toLocaleDateString()}`,
-      16,
-      54
-    );
-    doc.text(`Gender: ${patient.gender || "Unknown"}`, 16, 60);
-    doc.text(`Contact: ${patient.contactInfo || "N/A"}`, 16, 66);
-
-    doc.setLineWidth(0.5);
-    doc.line(15, 72, doc.internal.pageSize.getWidth() - 15, 72);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Medical Records:`, 14, 80);
-    doc.setFont("helvetica", "normal");
-
-    let yPosition = 90;
-
-    patientRecords.forEach((record, index) => {
-      const doctor = doctors.find((d) => d.id === record.doctorId);
-      const nurse = nurses.find((n) => n.id === record.nurseId);
-      const recordPrescriptions =
-        record.prescriptionId !== undefined
-          ? prescriptions.find((p) => p.id === record.prescriptionId)
-            ? `${prescriptions.find((p) => p.id === record.prescriptionId)
-              ?.medicationName
-            } (${prescriptions.find((p) => p.id === record.prescriptionId)
-              ?.dosage
-            })`
-            : "N/A"
-          : "N/A";
-
-      doc.setFont("helvetica", "bold");
-      doc.text(`Record ${index + 1}:`, 14, yPosition);
-      yPosition += 8;
-
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        `Date: ${new Date(record.recordDate).toLocaleString()}`,
-        16,
-        yPosition
-      );
-      yPosition += 6;
-      doc.text(`Details: ${record.recordDetails}`, 16, yPosition);
-      yPosition += 6;
-      doc.text(
-        `Doctor: ${doctor
-          ? `${doctor.firstName} ${doctor.lastName} (Specialty: ${doctor.specialty})`
-          : "N/A"
-        }`,
-        16,
-        yPosition
-      );
-      yPosition += 6;
-      doc.text(
-        `Nurse: ${nurse ? `${nurse.firstName} ${nurse.lastName}` : "N/A"}`,
-        16,
-        yPosition
-      );
-      yPosition += 6;
-      doc.text(`Prescriptions: ${recordPrescriptions || "N/A"}`, 16, yPosition);
-      yPosition += 10;
-
-      doc.setLineWidth(0.1);
-      doc.line(
-        15,
-        yPosition - 2,
-        doc.internal.pageSize.getWidth() - 15,
-        yPosition - 2
-      );
-      yPosition += 6;
-    });
-
-    doc.setFontSize(10);
-    doc.text(
-      `Generated on: ${new Date().toLocaleDateString()}`,
-      14,
-      doc.internal.pageSize.height - 10
-    );
-
-    doc.save(
-      `medical-records-${patient.firstName}-${patient.lastName
-      }-${new Date().getTime()}.pdf`
-    );
-  };
-
-  const filteredRecords = records.filter((record) =>
-    record.recordDetails.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patients.find(p => p.patientId === record.patientId)?.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patients.find(p => p.patientId === record.patientId)?.lastName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  });
 
   const SortButton = ({ column, children }: { column: keyof MedicalRecordDto; children: React.ReactNode }) => (
     <button
@@ -725,7 +331,6 @@ const MedicalRecordsPage: React.FC = () => {
         {/* Controls Section */}
         <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 mb-8 shadow-2xl">
           <div className="flex flex-wrap items-center gap-4 mb-6">
-            {/* Create Button */}
             {(roles?.includes("Admin") || roles?.includes("Doctor") || roles?.includes("Patient")) && (
               <ActionButton
                 onClick={() => setModalOpen(true)}
@@ -736,9 +341,8 @@ const MedicalRecordsPage: React.FC = () => {
               </ActionButton>
             )}
 
-            {/* PDF Buttons */}
             <ActionButton
-              onClick={roles?.includes("Patient") ? generateMyRecordsPDF : generatePDF}
+              onClick={handleDownloadRecords}
               variant="success"
               icon={Download}
             >
@@ -746,14 +350,13 @@ const MedicalRecordsPage: React.FC = () => {
             </ActionButton>
 
             <ActionButton
-              onClick={roles?.includes("Patient") ? generateMyPrescriptionPDF : generatePrescriptionPDF}
+              onClick={handleDownloadPrescriptions}
               variant="success"
               icon={Pill}
             >
               Download Prescriptions
             </ActionButton>
 
-            {/* Patient Selector (not for Patient role) */}
             {!roles?.includes("Patient") && (
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -808,7 +411,6 @@ const MedicalRecordsPage: React.FC = () => {
             )}
           </div>
 
-          {/* Search Bar */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -903,9 +505,12 @@ const MedicalRecordsPage: React.FC = () => {
                       className={`hover:bg-white/5 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white/2' : ''
                         }`}
                     >
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-600/20 text-blue-400 rounded-lg text-sm font-medium">
-                          {record.id}
+                      <td className="px-4 py-3 w-[60px]">
+                        <span
+                          className="block w-[60px] overflow-hidden text-ellipsis whitespace-nowrap bg-blue-600/20 text-blue-400 rounded-lg px-2 py-1 text-xs font-medium text-center"
+                          title={record.id.toString()}
+                        >
+                          {record.id.toString().slice(0, 6)}{record.id.toString().length > 6 && '…'}
                         </span>
                       </td>
                       <td className="px-6 py-4">

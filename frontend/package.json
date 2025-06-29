@@ -36,6 +36,7 @@
     "react-router-dom": "^6.26.1",
     "react-toastify": "^10.0.5",
     "rollup": "^4.44.0",
+    "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {
