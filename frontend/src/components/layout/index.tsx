@@ -1,7 +1,6 @@
 import useAuth from '../../hooks/useAuth.hook';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import Header from './Header';
 
 const Layout = () => {
   const { isAuthenticated } = useAuth();
@@ -16,7 +15,7 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1b3d] via-[#0c254f] to-[#0a1b3d] p-6">
-      {!isAuthenticated && <Header />}
+      {!isAuthenticated}
 
       <div className="flex">
         {sideBarRenderer()}

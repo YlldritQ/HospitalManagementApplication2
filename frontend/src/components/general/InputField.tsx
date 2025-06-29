@@ -1,46 +1,61 @@
-import { Control, Controller } from 'react-hook-form';
+import { type Control, Controller } from "react-hook-form"
 
 interface IProps {
-  control: Control<any, any>;
-  label?: string;
-  inputName: string;
-  inputType?: string;
-  error?: string;
-  isSelect?: boolean; // New prop to check if the field is a select dropdown
-  options?: { value: string; label: string }[]; // New prop to provide dropdown options
-  icon?: string;
+  control: Control<any, any>
+  label?: string
+  inputName: string
+  inputType?: string
+  error?: string
+  isSelect?: boolean
+  options?: { value: string; label: string }[]
+  icon?: string
 }
 
 const InputField = ({
   control,
   label,
   inputName,
-  inputType = 'text',
+  inputType = "text",
   error,
   isSelect = false,
   options = [],
 }: IProps) => {
   const renderTopRow = () => {
     if (error) {
-      return <span className='text-red-600 font-semibold text-sm'>{error}</span>;
+      return (
+        <span className="text-red-500 font-medium text-xs flex items-center mb-1">
+          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          {error}
+        </span>
+      )
     }
+
     if (label) {
-      return <label className='font-semibold mb-1 text-sm block'>{label}</label>;
+      return <label className="font-medium text-white text-xs block mb-1">{label}</label>
     }
-    return null;
-  };
+
+    return null
+  }
 
   const baseClassName =
-    'border rounded-lg py-1 px-2 mt-1 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500';
+    "w-full border rounded-lg py-2 px-3 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
+
   const inputClassName = error
-    ? `border-red-500 ${baseClassName}`
-    : `border-gray-300 ${baseClassName}`;
+    ? `border-red-300 bg-red-50/50 focus:ring-red-500 focus:border-red-500 ${baseClassName}`
+    : `border-gray-200 hover:border-gray-300 focus:border-blue-500 ${baseClassName}`
+
   const selectClassName = error
-    ? `border-red-500 ${baseClassName}`
-    : `border-gray-300 ${baseClassName}`;
+    ? `border-red-300 bg-red-50/50 focus:ring-red-500 focus:border-red-500 ${baseClassName}`
+    : `border-gray-200 hover:border-gray-300 focus:border-blue-500 ${baseClassName}`
 
   return (
-    <div className='px-4 my-1 w-10/12'>
+    <div className="w-full mb-2">
       {renderTopRow()}
       <Controller
         name={inputName}
@@ -48,20 +63,26 @@ const InputField = ({
         render={({ field }) =>
           isSelect ? (
             <select {...field} className={selectClassName}>
-              <option value=''>Select {label}</option>
+              <option value="">Select {label}</option>
               {options.map((option) => (
-                <option key={option.value} value={option.value} className='hover:bg-indigo-500'>
+                <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
             </select>
           ) : (
-            <input {...field} autoComplete='off' type={inputType} className={inputClassName} />
+            <input
+              {...field}
+              autoComplete="off"
+              type={inputType}
+              className={inputClassName}
+              placeholder={`Enter ${label?.toLowerCase() || "value"}`}
+            />
           )
         }
       />
     </div>
-  );
-};
+  )
+}
 
-export default InputField;
+export default InputField

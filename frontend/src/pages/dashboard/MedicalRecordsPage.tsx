@@ -508,9 +508,11 @@ const MedicalRecordsPage: React.FC = () => {
                       <td className="px-4 py-3 w-[60px]">
                         <span
                           className="block w-[60px] overflow-hidden text-ellipsis whitespace-nowrap bg-blue-600/20 text-blue-400 rounded-lg px-2 py-1 text-xs font-medium text-center"
-                          title={record.id.toString()}
+                          title={record.id != null ? record.id.toString() : ""}
                         >
-                          {record.id.toString().slice(0, 6)}{record.id.toString().length > 6 && '…'}
+                          {record.id != null
+                            ? `${record.id.toString().slice(0, 6)}${record.id.toString().length > 6 ? "…" : ""}`
+                            : "N/A"}
                         </span>
                       </td>
                       <td className="px-6 py-4">
