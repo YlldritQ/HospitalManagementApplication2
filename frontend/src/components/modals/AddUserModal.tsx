@@ -1,36 +1,43 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import * as Yup from "yup"
-import { useForm } from "react-hook-form"
-import { yupResolver } from "@hookform/resolvers/yup"
-import { toast } from "react-hot-toast"
-import { TbActivityHeartbeat } from "react-icons/tb"
-import InputField from "../general/InputField"
-import Button from "../general/Button"
-import useAuth from "../../hooks/useAuth.hook"
-import { type IRegisterDto, GenderEnum } from "../../types/auth.types"
+import type React from "react";
+import { useState } from "react";
+import * as Yup from "yup";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { toast } from "react-hot-toast";
+import { TbActivityHeartbeat } from "react-icons/tb";
+import InputField from "../general/InputField";
+import Button from "../general/Button";
+import axiosInstance from "../../utils/axiosInstance";
+import { type IRegisterDto, GenderEnum } from "../../types/auth.types";
 
 interface AddUserModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onUserAdded?: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  onUserAdded?: () => void;
 }
 
-const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdded }) => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const { register } = useAuth()
+const AddUserModal: React.FC<AddUserModalProps> = ({
+  isOpen,
+  onClose,
+  onUserAdded,
+}) => {
+  const [loading, setLoading] = useState<boolean>(false);
 
   const registerSchema = Yup.object().shape({
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
     userName: Yup.string().required("User Name is required"),
     gender: Yup.string().required("Gender is required"),
-    email: Yup.string().required("Email is required").email("Input text must be a valid email"),
-    password: Yup.string().required("Password is required").min(8, "Password must be at least 8 characters"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Input text must be a valid email"),
+    password: Yup.string()
+      .required("Password is required")
+      .min(8, "Password must be at least 8 characters"),
     address: Yup.string().required("Address Is required"),
-  })
+  });
 
   const {
     control,
@@ -48,35 +55,37 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
       password: "",
       address: "",
     },
-  })
+  });
 
   const onSubmitRegisterForm = async (data: IRegisterDto) => {
     try {
-      setLoading(true)
-      await register(data.firstName, data.lastName, data.userName, data.email, data.gender, data.password, data.address)
-      setLoading(false)
-      toast.success("User registered successfully!")
-      reset()
-      onClose()
-      if (onUserAdded) onUserAdded()
+      setLoading(true);
+
+      await axiosInstance.post("/Auth/register", data);
+
+      setLoading(false);
+      toast.success("User registered successfully!");
+      reset();
+      onClose();
+      if (onUserAdded) onUserAdded();
     } catch (error) {
-      setLoading(false)
-      const err = error as { data: string; status: number }
-      const { status, data } = err
+      setLoading(false);
+      const err = error as { response?: { data: string; status: number } };
+      const { status, data: message } = err.response || {};
       if (status === 400 || status === 409) {
-        toast.error(data)
+        toast.error(message || "Invalid input");
       } else {
-        toast.error("An Error occurred. Please contact admins")
+        toast.error("An error occurred. Please contact admins.");
       }
     }
-  }
+  };
 
   const handleClose = () => {
-    reset()
-    onClose()
-  }
+    reset();
+    onClose();
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
@@ -89,17 +98,43 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
             </div>
             <h2 className="text-2xl font-bold text-blue-800">Add New User</h2>
           </div>
-          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 text-2xl font-bold">
+          <button
+            onClick={handleClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+          >
             ×
           </button>
         </div>
 
         {/* Register Form */}
-        <form onSubmit={handleSubmit(onSubmitRegisterForm)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField control={control} label="First Name" inputName="firstName" error={errors.firstName?.message} />
-          <InputField control={control} label="Last Name" inputName="lastName" error={errors.lastName?.message} />
-          <InputField control={control} label="User Name" inputName="userName" error={errors.userName?.message} />
-          <InputField control={control} label="Email" inputName="email" error={errors.email?.message} />
+        <form
+          onSubmit={handleSubmit(onSubmitRegisterForm)}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          <InputField
+            control={control}
+            label="First Name"
+            inputName="firstName"
+            error={errors.firstName?.message}
+          />
+          <InputField
+            control={control}
+            label="Last Name"
+            inputName="lastName"
+            error={errors.lastName?.message}
+          />
+          <InputField
+            control={control}
+            label="User Name"
+            inputName="userName"
+            error={errors.userName?.message}
+          />
+          <InputField
+            control={control}
+            label="Email"
+            inputName="email"
+            error={errors.email?.message}
+          />
           <InputField
             control={control}
             label="Password"
@@ -119,19 +154,40 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
             ]}
           />
           <div className="md:col-span-2">
-            <InputField control={control} label="Address" inputName="address" error={errors.address?.message} />
+            <InputField
+              control={control}
+              label="Address"
+              inputName="address"
+              error={errors.address?.message}
+            />
           </div>
 
           {/* Action Buttons */}
           <div className="md:col-span-2 flex justify-end gap-4 mt-6">
-            <Button variant="secondary" type="button" label="Reset" onClick={() => reset()} />
-            <Button variant="secondary" type="button" label="Cancel" onClick={handleClose} />
-            <Button variant="primary" type="submit" label="Add User" loading={loading} onClick={() => { }} />
+            <Button
+              variant="secondary"
+              type="button"
+              label="Reset"
+              onClick={() => reset()}
+            />
+            <Button
+              variant="secondary"
+              type="button"
+              label="Cancel"
+              onClick={handleClose}
+            />
+            <Button
+              variant="primary"
+              type="submit"
+              label="Add User"
+              loading={loading}
+              onClick={() => { }}
+            />
           </div>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddUserModal
+export default AddUserModal;

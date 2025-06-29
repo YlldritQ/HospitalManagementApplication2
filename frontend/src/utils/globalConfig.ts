@@ -15,4 +15,13 @@ export const MY_LOGS_URL = "/Logs/mine";
 // Auth Routes
 export const PATH_AFTER_REGISTER = PATH_PUBLIC.login;
 export const PATH_AFTER_LOGIN = PATH_DASHBOARD.dashboard;
+export const PATH_AFTER_LOGIN_PATIENT = PATH_DASHBOARD.user;
 export const PATH_AFTER_LOGOUT = PATH_PUBLIC.login;
+
+export const getRedirectPathByRole = (roles: string[]): string => {
+  if (roles.includes("Patient")) return PATH_DASHBOARD.user;
+  if (roles.includes("Doctor")) return PATH_DASHBOARD.doctor;
+  if (roles.includes("Nurse")) return PATH_DASHBOARD.nurse;
+  if (roles.includes("Admin")) return PATH_DASHBOARD.admin;
+  return PATH_DASHBOARD.dashboard;
+};

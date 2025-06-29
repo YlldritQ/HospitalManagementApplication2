@@ -8,20 +8,27 @@ import Button from '../../components/general/Button';
 import { toast } from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PATH_PUBLIC, PATH_DASHBOARD } from '../../routes/paths';
+import { PATH_PUBLIC } from '../../routes/paths';
 import { TbActivityHeartbeat } from "react-icons/tb";
+import { getRedirectPathByRole } from "../../utils/globalConfig";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [rememberMe, setRememberMe] = useState<boolean>(false);
 
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     navigate(PATH_DASHBOARD.user);
+  //   }
+  // });
+  //
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(PATH_DASHBOARD.dashboard);
+    if (isAuthenticated && user?.roles) {
+      navigate(getRedirectPathByRole(user.roles));
     }
-  });
+  }, [isAuthenticated, user, navigate]);
 
   const loginSchema = Yup.object().shape({
     userName: Yup.string().required('User Name is required'),
@@ -60,7 +67,7 @@ const LoginPage = () => {
 
   return (
     <div className='fixed inset-0 flex justify-center items-center bg-cover bg-center'
-      >
+    >
 
       <div className='bg-white bg-opacity-60 shadow-lg rounded-lg p-8 w-96'>
         {/* Logo Section */}
@@ -113,7 +120,7 @@ const LoginPage = () => {
               variant='primary'
               type='submit'
               label='Login'
-              onClick={() => {}}
+              onClick={() => { }}
               loading={loading}
               className='w-full bg-blue-600 text-white hover:bg-blue-700'
             />

@@ -1,6 +1,6 @@
 
 
-  export const PATH_PUBLIC = {
+export const PATH_PUBLIC = {
   register: "/register",
   login: "/",
   unauthorized: "/unauthorized",
@@ -9,23 +9,24 @@
 
 export const PATH_DASHBOARD = {
   dashboard: "/dashboard",
+  dashboardPatient: "/dashboard/user",
   usersManagement: "/dashboard/users-management",
   updateRole: "/dashboard/update-role/:userName",
   systemLogs: "/dashboard/system-logs",
   myLogs: "/dashboard/my-logs",
   admin: "/dashboard/admin",
   user: "/dashboard/user",
-  patient: "/dashboard/patient",   
+  patient: "/dashboard/patient",
   patientList: "/dashboard/patient-list",
-  editPatient:"/dashboard/edit-patient/:id",
+  editPatient: "/dashboard/edit-patient/:id",
   doctor: "/dashboard/doctor",
   doctorList: "/dashboard/doctor-list",
-  nurseList: "/dashboard/nurse-list",     
+  nurseList: "/dashboard/nurse-list",
   nurse: "/dashboard/nurse",
   editNurse: "/dashboard/edit-nurse/:id",
-  editDoctor: "/dashboard/edit-doctor/:id",  
+  editDoctor: "/dashboard/edit-doctor/:id",
   appointment: "/dashboard/appointment",
-  editAppointment : "/dashboard/edit-appointment/:id",
+  editAppointment: "/dashboard/edit-appointment/:id",
   roomList: "/dashboard/room-list",
   departmentList: "/dashboard/department-list",
   editDepartment: "/dashboard/edit-department/:id",

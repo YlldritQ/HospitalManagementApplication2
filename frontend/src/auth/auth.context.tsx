@@ -19,11 +19,11 @@ import { useNavigate } from "react-router-dom";
 import {
   LOGIN_URL,
   ME_URL,
-  PATH_AFTER_LOGIN,
   PATH_AFTER_LOGOUT,
   PATH_AFTER_REGISTER,
   REGISTER_URL,
   UPDATE_URL,
+  getRedirectPathByRole
 } from "../utils/globalConfig";
 
 // reducer function for useReducer hook
@@ -171,17 +171,17 @@ const AuthContextProvider = ({ children }: IProps) => {
           address,
         });
         toast.success("Update Successful");
-  
-        const { newToken,userInfo } = response.data;
-  
+
+        const { newToken, userInfo } = response.data;
+
         // Update session and context
         setSession(newToken);
         dispatch({
           type: IAuthContextActionTypes.LOGIN,
           payload: userInfo,
         });
-          // Navigate after a short delay to ensure the state is updated
-          navigate("/dashboard/profile");
+        // Navigate after a short delay to ensure the state is updated
+        navigate("/dashboard/profile");
       } catch (error) {
         console.error("Update Error:", error);
         toast.error("Update Failed. Please try again.");
@@ -189,9 +189,9 @@ const AuthContextProvider = ({ children }: IProps) => {
     },
     []
   );
-  
-  
-    
+
+
+
   // Login Method
   const login = useCallback(async (userName: string, password: string, rememberMe: boolean) => {
     const response = await axiosInstance.post<ILoginResponseDto>(LOGIN_URL, {
@@ -210,7 +210,7 @@ const AuthContextProvider = ({ children }: IProps) => {
       type: IAuthContextActionTypes.LOGIN,
       payload: userInfo,
     });
-    navigate(PATH_AFTER_LOGIN);
+    navigate(getRedirectPathByRole(userInfo.roles));
   }, []);
 
   // Logout Method
