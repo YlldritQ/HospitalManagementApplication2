@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using backend.Core.DbContext;
+using backend.Core.Dtos.General;
 using backend.Core.Entities;
 using backend.Core.Hubs;
 using backend.Core.Interfaces;
@@ -64,11 +65,30 @@ namespace backend.Core.Services
             return await _mongoContext.Notifications.Find(filter).SortByDescending(n => n.CreatedAt).ToListAsync(ct);
         }
 
-        public async Task MarkAsReadAsync(string notificationId, CancellationToken ct = default)
+        public async Task<GeneralServiceResponseDto> MarkAsReadAsync(string notificationId, CancellationToken ct = default)
         {
             var filter = Builders<Notification>.Filter.Eq(n => n.Id, notificationId);
             var update = Builders<Notification>.Update.Set(n => n.IsRead, true);
-            await _mongoContext.Notifications.UpdateOneAsync(filter, update, cancellationToken: ct);
+            try
+            {
+                await _mongoContext.Notifications.UpdateOneAsync(filter, update, cancellationToken: ct);
+                return new GeneralServiceResponseDto
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Notification marked as read successfully."
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new GeneralServiceResponseDto
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"An error occurred while marking notification as read: {ex.Message}"
+                };
+            }
         }
     }
 }

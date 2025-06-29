@@ -1,5 +1,6 @@
 using backend.Core.Entities;
 using backend.Core.Interfaces;
+using backend.Migrations;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -40,6 +41,30 @@ namespace backend.Controllers
 
             await _notificationService.SendAsync(request.Title, request.Body, channel,  request.UserId);
             return Ok($"Notification sent to {request.UserId} via {channel}");
+        }
+
+        [HttpGet("getNotificationsByUserId")]
+        public async Task<ActionResult<IEnumerator<Notification>>> GetAllNotificatonsByUserId([FromBody] string userId)
+        {
+            var notifications = await _notificationService.GetUnreadAsync(userId);
+
+            if(notifications == null)
+            {
+                return NotFound($"No notifications found for user {userId}");
+            }
+
+            return Ok(notifications);
+        }
+
+        [HttpPost("markAsReadNotification")]
+        public async Task<IActionResult> MarkAsReadNotification([FromBody] string notificationId)
+        {
+            var result = await _notificationService.MarkAsReadAsync(notificationId);
+            if (result.StatusCode == 200)
+            {
+                return Ok($"Notification {notificationId} marked as read.");
+            }
+            return NotFound($"Notification {notificationId} not found.");
         }
     }
 } 

@@ -16,13 +16,15 @@ namespace backend.Core.Services
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IAuthService _authService;
+        private readonly INotificationService _notificationService;
 
 
-        public AppointmentService(ApplicationDbContext context, IMapper mapper, IAuthService authService)
+        public AppointmentService(ApplicationDbContext context, IMapper mapper, IAuthService authService, INotificationService notificationService)
         {
             _context = context;
             _mapper = mapper;
             _authService = authService;
+            _notificationService = notificationService;
         }
 
         public async Task<AppointmentDto> GetAppointmentByIdAsync(int appointmentId)
@@ -201,6 +203,16 @@ namespace backend.Core.Services
             // Save the new appointment
             await _context.Appointments.AddAsync(appointment);
             await _context.SaveChangesAsync();
+
+            await _notificationService.SendAsync(
+                               "New Appointment Created",
+                                              $"Your appointment with Dr. {doctor.FirstName} has been successfully created for {appointmentDto.AppointmentDate:dd/MM/yyyy HH:mm} in room {room.RoomNumber}.",
+                                                             NotificationChannel.Web | NotificationChannel.Email,
+                                                                            patient.UserId
+                                                                                       );
+            await _notificationService.SendAsync("New Appointment Created",
+                $"You have a new appointment with {patient.FirstName} {patient.LastName} on {appointmentDto.AppointmentDate:dd/MM/yyyy HH:mm} in room {room.RoomNumber}.",
+                NotificationChannel.Web | NotificationChannel.Email,doctor.UserId);
 
             return new GeneralServiceResponseDto
             {
