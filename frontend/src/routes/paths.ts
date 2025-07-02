@@ -1,5 +1,3 @@
-
-
 export const PATH_PUBLIC = {
   register: "/register",
   login: "/",
@@ -42,6 +40,7 @@ export const PATH_DASHBOARD = {
   updatePlanet: "/dashboard/edit-planet/:id",
   sateliteList: "/dashboard/satelite-list",
   updateSatelite: "/dashboard/edit-satelite/:id",
+  emergencyContacts: "/dashboard/emergency-contacts",
 };
 
 

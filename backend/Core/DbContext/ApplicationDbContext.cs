@@ -28,6 +28,7 @@ namespace backend.Core.DbContext
         public DbSet<DoctorRoom> DoctorRooms { get; set; }
         public DbSet<NurseRoom> NurseRooms { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<EmergencyContact> EmergencyContacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -169,6 +170,13 @@ namespace backend.Core.DbContext
                 .HasOne(nr => nr.Room)
                 .WithMany(r => r.NurseRooms)
                 .HasForeignKey(nr => nr.RoomId);
+
+            // EmergencyContact - ApplicationUser (Many-to-One)
+            builder.Entity<EmergencyContact>()
+            .HasOne(ec => ec.User)
+            .WithMany(u => u.EmergencyContacts)
+            .HasForeignKey(ec => ec.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         }
     }

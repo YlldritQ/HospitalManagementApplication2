@@ -40,6 +40,7 @@ const UpdateTeam = lazy(() => import("../pages/dashboard/EditTeam"));
 const PlayerList = lazy(() => import("../pages/dashboard/PlayerList"));
 const UpdatePlayer = lazy(() => import("../pages/dashboard/EditPlayer"));
 const PlanetList = lazy(() => import("../pages/dashboard/PlanetList"));
+const EmergencyContacts = lazy(() => import("../pages/dashboard/EmergencyContacts"));
 
 
 
@@ -283,6 +284,14 @@ const GlobalRouter = () => {
             element={
               <Suspense fallback={<div>Loading...</div>}>
                 <MedicalRecord />
+              </Suspense>
+            }
+          />
+          <Route
+            path={PATH_DASHBOARD.emergencyContacts}
+            element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <EmergencyContacts />
               </Suspense>
             }
           />

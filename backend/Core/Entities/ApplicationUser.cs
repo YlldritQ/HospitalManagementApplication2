@@ -23,6 +23,8 @@ namespace backend.Core.Entities
         // public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
         public List<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+        public virtual ICollection<EmergencyContact> EmergencyContacts { get; set; } = new List<EmergencyContact>();
     }
 
     public class RefreshToken
