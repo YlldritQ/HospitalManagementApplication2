@@ -205,7 +205,13 @@ const Sidebar = () => {
 
     if (user.roles.includes("Patient") || user.roles.includes("User")) {
       return (
-        <>
+        <>  <button
+            onClick={() => handleClick(PATH_DASHBOARD.user)}
+            className="flex items-center gap-3 text-gray-300 hover:bg-blue-800 p-3 rounded-lg w-full transition"
+          >
+            <FaUserInjured className="text-teal-400 w-6 h-6" />
+            <span className="font-medium text-sm">User Dashboard</span>
+          </button>
           <button
             onClick={() => handleClick(PATH_DASHBOARD.emergencyContacts)}
             className="flex items-center gap-3 text-gray-300 hover:bg-blue-800 p-3 rounded-lg w-full transition"
@@ -213,14 +219,6 @@ const Sidebar = () => {
             <FaClipboardList className="text-red-400 w-6 h-6" />
             <span className="font-medium text-sm">Emergency Contacts</span>
           </button>
-          <button
-            onClick={() => handleClick(PATH_DASHBOARD.user)}
-            className="flex items-center gap-3 text-gray-300 hover:bg-blue-800 p-3 rounded-lg w-full transition"
-          >
-            <FaUserInjured className="text-teal-400 w-6 h-6" />
-            <span className="font-medium text-sm">User Dashboard</span>
-          </button>
-
           <button
             onClick={() => handleClick(PATH_DASHBOARD.appointment)}
             className="flex items-center gap-3 text-gray-300 hover:bg-blue-800 p-3 rounded-lg w-full transition"

@@ -7,7 +7,6 @@ interface Props {
   onSubmit: (data: Omit<IEmergencyContact, "emergencyContactId">) => void;
   initialData: IEmergencyContact | null;
   isEdit: boolean;
-  disablePrimary: boolean;
   disableAdd: boolean;
 }
 
@@ -24,24 +23,25 @@ const EmergencyContactFormModal: React.FC<Props> = ({
   onSubmit,
   initialData,
   isEdit,
-  disablePrimary,
   disableAdd,
 }) => {
   const [form, setForm] = React.useState(defaultForm);
 
-  // Populate form when editing
+  // Reset form when modal opens/closes
   useEffect(() => {
-    if (initialData) {
-      setForm({
-        fullName: initialData.fullName,
-        phoneNumber: initialData.phoneNumber,
-        relationship: initialData.relationship,
-        isPrimary: initialData.isPrimary,
-      });
-    } else {
-      setForm(defaultForm);
+    if (isOpen) {
+      if (initialData) {
+        setForm({
+          fullName: initialData.fullName,
+          phoneNumber: initialData.phoneNumber,
+          relationship: initialData.relationship,
+          isPrimary: initialData.isPrimary,
+        });
+      } else {
+        setForm(defaultForm);
+      }
     }
-  }, [initialData, isOpen]);
+  }, [isOpen, initialData]);
 
   // Handle form field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,13 +120,14 @@ const EmergencyContactFormModal: React.FC<Props> = ({
               checked={form.isPrimary}
               onChange={handleChange}
               id="isPrimary"
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
             />
-            <label htmlFor="isPrimary" className="text-gray-700 font-medium">
+            <label htmlFor="isPrimary" className="text-gray-700 font-medium cursor-pointer">
               Mark as Primary
             </label>
-            {disablePrimary && !form.isPrimary && (
-              <span className="text-xs text-yellow-600 ml-2">(Another contact is already primary. Saving will update the primary contact.)</span>
-            )}
+          </div>
+          <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+            💡 Tip: Only one contact can be primary. If you mark this as primary, any existing primary contact will be updated.
           </div>
           <button
             type="submit"

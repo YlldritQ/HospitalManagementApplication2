@@ -1,4 +1,4 @@
-import { FaUserInjured, FaFileMedical, FaCalendarAlt } from "react-icons/fa";
+import { FaUserInjured, FaFileMedical, FaCalendarAlt, FaPhone } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import PageAccessTemplate from '../../components/dashboard/page-access/PageAccessTemplate';
 
@@ -42,6 +42,24 @@ const UserPage = () => {
                 className="inline-block text-white bg-[#50E3C2] hover:bg-[#3D8B74] py-2 px-4 rounded-lg transition-colors duration-200"
               >
                 View Appointments
+              </Link>
+            </div>
+          </div>
+
+          {/* Emergency Contacts Section */}
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl border-t-4 border-l-4" style={{ borderColor: '#FF6B6B' }}>
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-4 flex items-center text-[#FF6B6B]">
+                <FaPhone className="mr-3 text-3xl" /> Emergency Contacts
+              </h2>
+              <p className="text-gray-300 mb-4">
+                Manage your emergency contacts for quick access during emergencies.
+              </p>
+              <Link
+                to="/dashboard/emergency-contacts"
+                className="inline-block text-white bg-[#FF6B6B] hover:bg-[#E55A5A] py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                Manage Contacts
               </Link>
             </div>
           </div>

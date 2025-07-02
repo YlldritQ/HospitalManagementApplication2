@@ -125,7 +125,6 @@ const EmergencyContacts = () => {
         onSubmit={handleFormSubmit}
         initialData={selectedContact}
         isEdit={isEdit}
-        disablePrimary={contacts.some(c => c.isPrimary) && !selectedContact?.isPrimary}
         disableAdd={contacts.length >= 3}
       />
       <DeleteConfirmationModal
