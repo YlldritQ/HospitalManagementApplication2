@@ -9,10 +9,10 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificationTestController : ControllerBase
+    public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
-        public NotificationTestController(INotificationService notificationService)
+        public NotificationController(INotificationService notificationService)
         {
             _notificationService = notificationService;
         }
@@ -43,8 +43,8 @@ namespace backend.Controllers
             return Ok($"Notification sent to {request.UserId} via {channel}");
         }
 
-        [HttpGet("getNotificationsByUserId")]
-        public async Task<ActionResult<IEnumerator<Notification>>> GetAllNotificatonsByUserId([FromBody] string userId)
+        [HttpGet("getNotificationsByUserId/{userId}")]
+        public async Task<ActionResult<IEnumerable<Notification>>> GetAllNotificatonsByUserId(string userId)
         {
             var notifications = await _notificationService.GetUnreadAsync(userId);
 
@@ -56,15 +56,20 @@ namespace backend.Controllers
             return Ok(notifications);
         }
 
-        [HttpPost("markAsReadNotification")]
-        public async Task<IActionResult> MarkAsReadNotification([FromBody] string notificationId)
+        public class MarkAsReadRequest
         {
-            var result = await _notificationService.MarkAsReadAsync(notificationId);
+            public string NotificationId { get; set; }
+        }
+
+        [HttpPost("markAsReadNotification")]
+        public async Task<IActionResult> MarkAsReadNotification([FromBody] MarkAsReadRequest request)
+        {
+            var result = await _notificationService.MarkAsReadAsync(request.NotificationId);
             if (result.StatusCode == 200)
             {
-                return Ok($"Notification {notificationId} marked as read.");
+                return Ok($"Notification {request.NotificationId} marked as read.");
             }
-            return NotFound($"Notification {notificationId} not found.");
+            return NotFound($"Notification {request.NotificationId} not found.");
         }
     }
 } 

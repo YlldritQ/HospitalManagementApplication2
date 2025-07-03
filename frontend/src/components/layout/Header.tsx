@@ -1,6 +1,5 @@
-
 import { SiSharp } from "react-icons/si";
-
+import NotificationBell from "../common/NotificationBell";
 
 const Header = () => {
 
@@ -14,6 +13,10 @@ const Header = () => {
           Patient
         </span>
         <SiSharp className="ml-2" />
+      </div>
+      <div className="flex items-center gap-6">
+        <NotificationBell />
+        {/* Avatar or user menu can go here in the future */}
       </div>
     </header>
   );

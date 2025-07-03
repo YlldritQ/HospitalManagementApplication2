@@ -11,6 +11,7 @@ import { AiOutlineCalendar, AiOutlineLogout } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth.hook";
 import { PATH_DASHBOARD } from "../../routes/paths";
+import NotificationBell from "../common/NotificationBell";
 const Sidebar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -250,6 +251,7 @@ const Sidebar = () => {
               {user?.firstName} {user?.lastName}
             </h4>
             <p className="text-sm text-gray-400">{user?.roles?.[0]}</p>
+            <NotificationBell />
           </div>
         </div>
 
