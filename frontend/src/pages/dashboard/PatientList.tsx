@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth.hook";
 import { User, Phone } from "lucide-react";
 import PatientEmergencyContactsModal from "../../components/emergency-contacts/PatientEmergencyContactsModal";
+import SearchFilter from "../../components/general/SearchFilter";
 
 interface Patient {
   patientId: number;
@@ -30,11 +31,16 @@ const transformPatientData = (data: any): Patient[] => {
 
 const PatientList: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
   const { user: loggedInUser } = useAuth();
   const roles = loggedInUser?.roles;
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
 
   // Modal state for emergency contacts
   const [isEmergencyContactsModalOpen, setIsEmergencyContactsModalOpen] = useState(false);
@@ -46,6 +52,7 @@ const PatientList: React.FC = () => {
         const fetchedPatients = await getAllPatients();
         const transformedPatients = transformPatientData(fetchedPatients);
         setPatients(transformedPatients);
+        setFilteredPatients(transformedPatients);
       } catch (error: unknown) {
         if (error instanceof Error) {
           setError(error.message);
@@ -59,6 +66,39 @@ const PatientList: React.FC = () => {
 
     fetchPatients();
   }, []);
+
+  // Filter patients based on search term and filters
+  useEffect(() => {
+    let filtered = patients;
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(patient =>
+        patient.firstName.toLowerCase().includes(term) ||
+        patient.lastName.toLowerCase().includes(term) ||
+        patient.contactInfo.toLowerCase().includes(term) ||
+        patient.patientId.toString().includes(term)
+      );
+    }
+
+    // Gender filter
+    if (genderFilter) {
+      filtered = filtered.filter(patient => patient.gender === genderFilter);
+    }
+
+    setFilteredPatients(filtered);
+  }, [patients, searchTerm, genderFilter]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  const handleFilterChange = (filterType: string, value: string) => {
+    if (filterType === 'gender') {
+      setGenderFilter(value);
+    }
+  };
 
   const handleDelete = async (patientId: number) => {
     try {
@@ -106,6 +146,18 @@ const PatientList: React.FC = () => {
   const isAdmin = roles?.includes("Admin");
   const isDoctor = roles?.includes("Doctor");
 
+  // Get unique genders for filter
+  const uniqueGenders = Array.from(new Set(patients.map(p => p.gender))).filter(Boolean);
+
+  const filterOptions = [
+    {
+      type: 'gender',
+      label: 'Gender',
+      options: uniqueGenders.map(gender => ({ value: gender, label: gender })),
+      value: genderFilter
+    }
+  ];
+
   return (
     <div className="min-h-screen w-full p-6">
       {/* Header */}
@@ -121,6 +173,21 @@ const PatientList: React.FC = () => {
         <p className="text-gray-400 text-lg">
           Manage patient information and records
         </p>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="mb-6">
+        <SearchFilter
+          onSearch={handleSearch}
+          onFilterChange={handleFilterChange}
+          placeholder="Search patients by name, contact, or ID..."
+          filters={filterOptions}
+        />
+      </div>
+
+      {/* Results Count */}
+      <div className="mb-4 text-gray-400">
+        Showing {filteredPatients.length} of {patients.length} patients
       </div>
 
       <div className="w-full overflow-x-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6">
@@ -150,7 +217,7 @@ const PatientList: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
-            {patients.map((patient) => (
+            {filteredPatients.map((patient) => (
               <tr
                 key={patient.patientId}
                 className="hover:bg-white/10 transition-colors duration-200"
@@ -201,27 +268,17 @@ const PatientList: React.FC = () => {
                 )}
               </tr>
             ))}
-            {patients.length === 0 && (
-              <tr>
-                <td
-                  colSpan={(isAdmin || isDoctor) ? 6 : 5}
-                  className="text-center py-8 text-gray-400"
-                >
-                  No patients found.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
 
       {/* Emergency Contacts Modal */}
-      {selectedPatient && (
+      {isEmergencyContactsModalOpen && selectedPatient && (
         <PatientEmergencyContactsModal
-          isOpen={isEmergencyContactsModalOpen}
-          onClose={handleCloseEmergencyContactsModal}
           patientId={selectedPatient.userId}
           patientName={`${selectedPatient.firstName} ${selectedPatient.lastName}`}
+          isOpen={isEmergencyContactsModalOpen}
+          onClose={handleCloseEmergencyContactsModal}
         />
       )}
     </div>

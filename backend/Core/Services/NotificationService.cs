@@ -65,6 +65,12 @@ namespace backend.Core.Services
             return await _mongoContext.Notifications.Find(filter).SortByDescending(n => n.CreatedAt).ToListAsync(ct);
         }
 
+        public async Task<IReadOnlyList<Notification>> GetAllAsync(string userId, CancellationToken ct = default)
+        {
+            var filter = Builders<Notification>.Filter.Where(n => n.UserId == userId);
+            return await _mongoContext.Notifications.Find(filter).SortByDescending(n => n.CreatedAt).ToListAsync(ct);
+        }
+
         public async Task<GeneralServiceResponseDto> MarkAsReadAsync(string notificationId, CancellationToken ct = default)
         {
             var filter = Builders<Notification>.Filter.Eq(n => n.Id, notificationId);

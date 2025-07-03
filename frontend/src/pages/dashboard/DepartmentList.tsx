@@ -8,9 +8,11 @@ import DepartmentModal from "../../components/modals/DepartmentModal";
 import ManageDepartmentModal from "../../components/modals/ManageDepartmentModal";
 import { getDepartments, deleteDepartment } from "../../services/departmentService";
 import { Building2 } from "lucide-react";
+import SearchFilter from "../../components/general/SearchFilter";
 
 const DepartmentList: React.FC = () => {
   const [departments, setDepartments] = useState<DepartmentDto[]>([]);
+  const [filteredDepartments, setFilteredDepartments] = useState<DepartmentDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null);
@@ -19,6 +21,9 @@ const DepartmentList: React.FC = () => {
   const [actionType, setActionType] = useState<"assign" | "remove" | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +31,7 @@ const DepartmentList: React.FC = () => {
       try {
         const data = await getDepartments();
         setDepartments(data);
+        setFilteredDepartments(data);
       } catch (err) {
         setError("Failed to fetch departments");
         toast.error("Failed to fetch departments");
@@ -36,6 +42,27 @@ const DepartmentList: React.FC = () => {
 
     fetchDepartments();
   }, []);
+
+  // Filter departments based on search term
+  useEffect(() => {
+    let filtered = departments;
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(department =>
+        department.name.toLowerCase().includes(term) ||
+        department.description.toLowerCase().includes(term) ||
+        department.id.toString().includes(term)
+      );
+    }
+
+    setFilteredDepartments(filtered);
+  }, [departments, searchTerm]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this department?")) {
@@ -140,22 +167,37 @@ const DepartmentList: React.FC = () => {
           </button>
         </div>
 
+        {/* Search and Filter */}
+        <div className="mb-6">
+          <SearchFilter
+            onSearch={handleSearch}
+            placeholder="Search departments by name, description, or ID..."
+          />
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-4 text-gray-400">
+          Showing {filteredDepartments.length} of {departments.length} departments
+        </div>
+
         {/* Departments Table */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-          {departments.length === 0 ? (
+          {filteredDepartments.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                No departments found
+                {searchTerm ? 'No departments found matching your search' : 'No departments found'}
               </h3>
               <p className="text-gray-500 mb-6">
-                Get started by creating your first department.
+                {searchTerm ? 'Try adjusting your search terms.' : 'Get started by creating your first department.'}
               </p>
-              <button
-                onClick={handleAddDepartmentClick}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
-              >
-                + Create Department
-              </button>
+              {!searchTerm && (
+                <button
+                  onClick={handleAddDepartmentClick}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                >
+                  + Create Department
+                </button>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -177,7 +219,7 @@ const DepartmentList: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
-                  {departments.map((department) => (
+                  {filteredDepartments.map((department) => (
                     <tr
                       key={department.id}
                       className="hover:bg-white/5 transition-colors duration-200"
@@ -206,7 +248,7 @@ const DepartmentList: React.FC = () => {
                           <button
                             onClick={() => handleDelete(department.id)}
                             disabled={deletingId === department.id}
-                            className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors duration-200 disabled:opacity-50"
+                            className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {deletingId === department.id ? "Deleting..." : "Delete"}
                           </button>
@@ -221,21 +263,26 @@ const DepartmentList: React.FC = () => {
         </div>
       </div>
 
+      {/* Modals */}
+      {isModalOpen && (
+        <DepartmentModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          departmentId={selectedDepartment ?? 0}
+        />
+      )}
+
+      {isManageModalOpen && selectedDepartment && (
+        <ManageDepartmentModal
+          isOpen={isManageModalOpen}
+          onClose={handleModalClose}
+          departmentId={selectedDepartment}
+          actionType={actionType}
+          onActionSelect={handleActionSelect}
+        />
+      )}
+
       <Toaster position="top-right" />
-
-      <DepartmentModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        departmentId={selectedDepartment ?? 0}
-      />
-
-      <ManageDepartmentModal
-        isOpen={isManageModalOpen}
-        onClose={handleModalClose}
-        departmentId={selectedDepartment ?? 0}
-        onActionSelect={handleActionSelect}
-        actionType={actionType}
-      />
     </div>
   );
 };

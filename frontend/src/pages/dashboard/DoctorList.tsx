@@ -11,9 +11,11 @@ import { toast, Toaster } from 'react-hot-toast';
 import { getDepartmentById } from '../../services/departmentService';
 import RoomAssignmentModal from '../../components/modals/RoomAssignmentModal';
 import { Stethoscope } from 'lucide-react';
+import SearchFilter from '../../components/general/SearchFilter';
 
 const DoctorList: React.FC = () => {
   const [doctors, setDoctors] = useState<DoctorDto[]>([]);
+  const [filteredDoctors, setFilteredDoctors] = useState<DoctorDto[]>([]);
   const [departments, setDepartments] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,11 +24,18 @@ const DoctorList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [specialtyFilter, setSpecialtyFilter] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('');
+  const [availabilityFilter, setAvailabilityFilter] = useState('');
+
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
         const data = await getDoctors();
         setDoctors(data);
+        setFilteredDoctors(data);
 
         // Fetch unique departments
         const departmentIds = Array.from(
@@ -51,6 +60,56 @@ const DoctorList: React.FC = () => {
 
     fetchDoctors();
   }, []);
+
+  // Filter doctors based on search term and filters
+  useEffect(() => {
+    let filtered = doctors;
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(doctor =>
+        doctor.firstName.toLowerCase().includes(term) ||
+        doctor.lastName.toLowerCase().includes(term) ||
+        doctor.specialty.toLowerCase().includes(term) ||
+        doctor.contactInfo.toLowerCase().includes(term) ||
+        doctor.id.toString().includes(term)
+      );
+    }
+
+    // Specialty filter
+    if (specialtyFilter) {
+      filtered = filtered.filter(doctor => doctor.specialty === specialtyFilter);
+    }
+
+    // Department filter
+    if (departmentFilter) {
+      const deptId = parseInt(departmentFilter);
+      filtered = filtered.filter(doctor => doctor.departmentId === deptId);
+    }
+
+    // Availability filter
+    if (availabilityFilter) {
+      const isAvailable = availabilityFilter === 'true';
+      filtered = filtered.filter(doctor => doctor.isAvailable === isAvailable);
+    }
+
+    setFilteredDoctors(filtered);
+  }, [doctors, searchTerm, specialtyFilter, departmentFilter, availabilityFilter]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  const handleFilterChange = (filterType: string, value: string) => {
+    if (filterType === 'specialty') {
+      setSpecialtyFilter(value);
+    } else if (filterType === 'department') {
+      setDepartmentFilter(value);
+    } else if (filterType === 'availability') {
+      setAvailabilityFilter(value);
+    }
+  };
 
   const handleDelete = async (id: number) => {
     try {
@@ -98,6 +157,37 @@ const DoctorList: React.FC = () => {
   if (error)
     return <div className="text-center text-red-500">{error}</div>;
 
+  // Get unique specialties and departments for filters
+  const uniqueSpecialties = Array.from(new Set(doctors.map(d => d.specialty))).filter(Boolean);
+  const uniqueDepartments = Object.entries(departments).map(([id, name]) => ({
+    value: id,
+    label: name
+  }));
+
+  const filterOptions = [
+    {
+      type: 'specialty',
+      label: 'Specialty',
+      options: uniqueSpecialties.map(specialty => ({ value: specialty, label: specialty })),
+      value: specialtyFilter
+    },
+    {
+      type: 'department',
+      label: 'Department',
+      options: uniqueDepartments,
+      value: departmentFilter
+    },
+    {
+      type: 'availability',
+      label: 'Availability',
+      options: [
+        { value: 'true', label: 'Available' },
+        { value: 'false', label: 'Not Available' }
+      ],
+      value: availabilityFilter
+    }
+  ];
+
   return (
     <div className="min-h-screen w-full p-6">
       {/* HEADER */}
@@ -113,6 +203,21 @@ const DoctorList: React.FC = () => {
         <p className="text-gray-400 text-lg">
           Manage doctors, specialties, and room assignments
         </p>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="mb-6">
+        <SearchFilter
+          onSearch={handleSearch}
+          onFilterChange={handleFilterChange}
+          placeholder="Search doctors by name, specialty, contact, or ID..."
+          filters={filterOptions}
+        />
+      </div>
+
+      {/* Results Count */}
+      <div className="mb-4 text-gray-400">
+        Showing {filteredDoctors.length} of {doctors.length} doctors
       </div>
 
       {/* TABLE */}
@@ -144,7 +249,7 @@ const DoctorList: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
-            {doctors.map((doctor) => (
+            {filteredDoctors.map((doctor) => (
               <tr
                 key={doctor.id}
                 className="hover:bg-white/10 transition-colors duration-200"
@@ -199,23 +304,12 @@ const DoctorList: React.FC = () => {
                 </td>
               </tr>
             ))}
-            {doctors.length === 0 && (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="text-center py-8 text-gray-400"
-                >
-                  No doctors found.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
 
-      <Toaster />
-
-      {selectedDoctor !== null && selectedDepartment !== null && (
+      {/* Room Assignment Modal */}
+      {isModalOpen && selectedDoctor && selectedDepartment && (
         <RoomAssignmentModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -225,6 +319,8 @@ const DoctorList: React.FC = () => {
           onRemove={handleRemoveRooms}
         />
       )}
+
+      <Toaster />
     </div>
   );
 };

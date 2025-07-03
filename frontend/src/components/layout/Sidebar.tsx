@@ -244,13 +244,17 @@ const Sidebar = () => {
     <div className="bg-gradient-to-r from-blue-900 to-blue-800 min-h-screen w-64 p-6 shadow-lg flex flex-col justify-between">
       {/* Profile Section */}
       <div>
-        <div onClick={handleProfileClick} className="flex items-center gap-4 border-b border-gray-600 pb-4 cursor-pointer">
-          <CiUser className="w-10 h-10 text-white" />
-          <div>
-            <h4 className="text-lg font-semibold text-white">
-              {user?.firstName} {user?.lastName}
-            </h4>
-            <p className="text-sm text-gray-400">{user?.roles?.[0]}</p>
+        <div className="flex items-center justify-between">
+          <div onClick={handleProfileClick} className="flex items-center gap-4 border-b border-gray-600 pb-4 cursor-pointer">
+            <CiUser className="w-10 h-10 text-white" />
+            <div>
+              <h4 className="text-lg font-semibold text-white">
+                {user?.firstName} {user?.lastName}
+              </h4>
+              <p className="text-sm text-gray-400">{user?.roles?.[0]}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-6 mt-4 px-1 py-1">
             <NotificationBell />
           </div>
         </div>

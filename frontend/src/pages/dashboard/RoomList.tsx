@@ -10,9 +10,11 @@ import { DepartmentDto } from "../../types/departmentTypes";
 import { getDepartments } from "../../services/departmentService";
 import useAuth from "../../hooks/useAuth.hook";
 import { DoorOpen } from "lucide-react";
+import SearchFilter from "../../components/general/SearchFilter";
 
 const RoomList: React.FC = () => {
   const [rooms, setRooms] = useState<RoomDto[]>([]);
+  const [filteredRooms, setFilteredRooms] = useState<RoomDto[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<RoomDto | null>(null);
   const { user: loggedInUser } = useAuth();
   const roles = loggedInUser?.roles;
@@ -22,11 +24,17 @@ const RoomList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('');
+
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         const data = await getAllRooms();
         setRooms(data);
+        setFilteredRooms(data);
         const depData = await getDepartments();
         setDepartments(depData);
       } catch (err) {
@@ -39,6 +47,47 @@ const RoomList: React.FC = () => {
 
     fetchRooms();
   }, []);
+
+  // Filter rooms based on search term and filters
+  useEffect(() => {
+    let filtered = rooms;
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(room =>
+        room.roomNumber.toString().includes(term) ||
+        room.id.toString().includes(term) ||
+        findDepartmentName(room.departmentId).toLowerCase().includes(term)
+      );
+    }
+
+    // Status filter
+    if (statusFilter) {
+      const isOccupied = statusFilter === 'true';
+      filtered = filtered.filter(room => room.isOccupied === isOccupied);
+    }
+
+    // Department filter
+    if (departmentFilter) {
+      const deptId = parseInt(departmentFilter);
+      filtered = filtered.filter(room => room.departmentId === deptId);
+    }
+
+    setFilteredRooms(filtered);
+  }, [rooms, searchTerm, statusFilter, departmentFilter]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  const handleFilterChange = (filterType: string, value: string) => {
+    if (filterType === 'status') {
+      setStatusFilter(value);
+    } else if (filterType === 'department') {
+      setDepartmentFilter(value);
+    }
+  };
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this room?")) {
@@ -93,6 +142,30 @@ const RoomList: React.FC = () => {
 
   const isAdmin = roles?.includes("Admin");
 
+  // Get unique departments for filter
+  const uniqueDepartments = departments.map(dept => ({
+    value: dept.id.toString(),
+    label: dept.name
+  }));
+
+  const filterOptions = [
+    {
+      type: 'status',
+      label: 'Status',
+      options: [
+        { value: 'false', label: 'Available' },
+        { value: 'true', label: 'Occupied' }
+      ],
+      value: statusFilter
+    },
+    {
+      type: 'department',
+      label: 'Department',
+      options: uniqueDepartments,
+      value: departmentFilter
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1b3d] via-[#0c254f] to-[#0a1b3d] p-6">
       <div className="w-full max-w-7xl mx-auto">
@@ -131,15 +204,32 @@ const RoomList: React.FC = () => {
           </div>
         )}
 
+        {/* Search and Filter */}
+        <div className="mb-6">
+          <SearchFilter
+            onSearch={handleSearch}
+            onFilterChange={handleFilterChange}
+            placeholder="Search rooms by room number, ID, or department..."
+            filters={filterOptions}
+          />
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-4 text-gray-400">
+          Showing {filteredRooms.length} of {rooms.length} rooms
+        </div>
+
         {/* Table Section */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
           {loading ? (
             <div className="text-center py-12 text-gray-300">Loading rooms...</div>
-          ) : rooms.length === 0 ? (
+          ) : filteredRooms.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">No rooms found</h3>
+              <h3 className="text-xl font-semibold text-gray-400 mb-2">
+                {searchTerm ? 'No rooms found matching your search' : 'No rooms found'}
+              </h3>
               <p className="text-gray-500">
-                No rooms have been created yet.
+                {searchTerm ? 'Try adjusting your search terms.' : 'No rooms have been created yet.'}
               </p>
             </div>
           ) : (
@@ -157,7 +247,7 @@ const RoomList: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {rooms.map((room) => (
+                  {filteredRooms.map((room) => (
                     <tr key={room.id} className="hover:bg-white/5 transition-colors">
                       <td className="px-6 py-4 text-gray-300">{room.id}</td>
                       <td className="px-6 py-4 text-gray-300">Room {room.roomNumber}</td>
@@ -186,7 +276,7 @@ const RoomList: React.FC = () => {
                             <button
                               onClick={() => handleDelete(room.id)}
                               disabled={deletingId === room.id}
-                              className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors duration-200 disabled:opacity-50"
+                              className="p-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {deletingId === room.id ? "Deleting..." : "Delete"}
                             </button>
@@ -200,19 +290,20 @@ const RoomList: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Modal */}
+        {modalOpen && (
+          <RoomEditModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            room={selectedRoom}
+            onUpdate={handleUpdate}
+            onCreate={handleCreate}
+          />
+        )}
+
+        <Toaster position="top-right" />
       </div>
-
-      <Toaster position="top-right" />
-
-      {modalOpen && (
-        <RoomEditModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          room={selectedRoom}
-          onUpdate={handleUpdate}
-          onCreate={handleCreate}
-        />
-      )}
     </div>
   );
 };

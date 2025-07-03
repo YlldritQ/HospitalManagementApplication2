@@ -3,6 +3,7 @@ import { FaBell } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
 import * as signalR from "@microsoft/signalr";
 import useAuth from "../../hooks/useAuth.hook";
+import AllNotificationsModal from "./AllNotificationsModal";
 
 interface Notification {
   id: string;
@@ -18,6 +19,8 @@ const NotificationBell: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const { user: loggedInUser } = useAuth() // Adjust if you use context
+  const [showAllModal, setShowAllModal] = useState(false);
+  const bellRef = useRef<HTMLDivElement | null>(null);
 
   const fetchNotifications = async () => {
     if (!loggedInUser) return;
@@ -75,10 +78,22 @@ const NotificationBell: React.FC = () => {
     // eslint-disable-next-line
   }, [loggedInUser]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownOpen]);
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="relative">
+    <div className="relative" ref={bellRef}>
       <button
         className="relative focus:outline-none"
         onClick={() => setDropdownOpen((open) => !open)}
@@ -117,7 +132,20 @@ const NotificationBell: React.FC = () => {
               </div>
             ))
           )}
+          <button
+            className="w-full mt-2 py-2 text-blue-600 hover:text-blue-800 font-semibold border-t border-gray-200 bg-white hover:bg-gray-50 transition rounded-b-lg"
+            onClick={() => { setShowAllModal(true); setDropdownOpen(false); }}
+          >
+            Display all notifications
+          </button>
         </div>
+      )}
+      {showAllModal && loggedInUser?.id && (
+        <AllNotificationsModal
+          isOpen={showAllModal}
+          onClose={() => setShowAllModal(false)}
+          userId={loggedInUser.id}
+        />
       )}
     </div>
   );

@@ -11,6 +11,7 @@ namespace backend.Core.Interfaces
     {
         Task SendAsync(string title, string body, NotificationChannel channel, string? userId = null);
         Task<IReadOnlyList<Notification>> GetUnreadAsync(string userId, CancellationToken ct = default);
+        Task<IReadOnlyList<Notification>> GetAllAsync(string userId, CancellationToken ct = default);
         Task<GeneralServiceResponseDto> MarkAsReadAsync(string notificationId, CancellationToken ct = default);
     }
 }

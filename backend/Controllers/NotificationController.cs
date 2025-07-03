@@ -44,7 +44,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("getNotificationsByUserId/{userId}")]
-        public async Task<ActionResult<IEnumerable<Notification>>> GetAllNotificatonsByUserId(string userId)
+        public async Task<ActionResult<IEnumerable<Notification>>> GetNotificatonsByUserId(string userId)
         {
             var notifications = await _notificationService.GetUnreadAsync(userId);
 
@@ -56,6 +56,18 @@ namespace backend.Controllers
             return Ok(notifications);
         }
 
+        [HttpGet("getAllNotificationsByUserId/{userId}")]
+        public async Task<ActionResult<IEnumerable<Notification>>> GetAllNotificatonsByUserId(string userId)
+        {
+            var notifications = await _notificationService.GetAllAsync(userId);
+
+            if (notifications == null)
+            {
+                return NotFound($"No notifications found for user {userId}");
+            }
+
+            return Ok(notifications);
+        }
         public class MarkAsReadRequest
         {
             public string NotificationId { get; set; }
