@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { getAllPatients, deletePatient } from "../../services/patientService";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth.hook";
-import { User } from "lucide-react";
+import { User, Phone } from "lucide-react";
+import PatientEmergencyContactsModal from "../../components/emergency-contacts/PatientEmergencyContactsModal";
 
 interface Patient {
   patientId: number;
@@ -34,6 +35,10 @@ const PatientList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Modal state for emergency contacts
+  const [isEmergencyContactsModalOpen, setIsEmergencyContactsModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -74,6 +79,18 @@ const PatientList: React.FC = () => {
     navigate(`/dashboard/edit-patient/${patientId}`);
   };
 
+  // Handle opening emergency contacts modal
+  const handleViewEmergencyContacts = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setIsEmergencyContactsModalOpen(true);
+  };
+
+  // Handle closing emergency contacts modal
+  const handleCloseEmergencyContactsModal = () => {
+    setIsEmergencyContactsModalOpen(false);
+    setSelectedPatient(null);
+  };
+
   if (loading) {
     return (
       <div className="text-gray-300 text-center p-10">Loading...</div>
@@ -87,6 +104,7 @@ const PatientList: React.FC = () => {
   }
 
   const isAdmin = roles?.includes("Admin");
+  const isDoctor = roles?.includes("Doctor");
 
   return (
     <div className="min-h-screen w-full p-6">
@@ -124,7 +142,7 @@ const PatientList: React.FC = () => {
               <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
                 Date of Birth
               </th>
-              {isAdmin && (
+              {(isAdmin || isDoctor) && (
                 <th className="py-4 px-6 text-left text-sm font-medium text-gray-300">
                   Actions
                 </th>
@@ -150,21 +168,34 @@ const PatientList: React.FC = () => {
                 <td className="py-4 px-6 text-gray-300">
                   {patient.dateOfBirth.toDateString()}
                 </td>
-                {isAdmin && (
+                {(isAdmin || isDoctor) && (
                   <td className="py-4 px-6">
                     <div className="flex gap-4">
-                      <button
-                        onClick={() => handleEdit(patient.patientId)}
-                        className="text-blue-400 hover:text-blue-300 underline transition duration-200"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(patient.patientId)}
-                        className="text-red-400 hover:text-red-300 underline transition duration-200"
-                      >
-                        Delete
-                      </button>
+                      {isDoctor && (
+                        <button
+                          onClick={() => handleViewEmergencyContacts(patient)}
+                          className="text-emerald-400 hover:text-emerald-300 underline transition duration-200 flex items-center gap-1"
+                        >
+                          <Phone className="w-4 h-4" />
+                          Emergency Contacts
+                        </button>
+                      )}
+                      {isAdmin && (
+                        <>
+                          <button
+                            onClick={() => handleEdit(patient.patientId)}
+                            className="text-blue-400 hover:text-blue-300 underline transition duration-200"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(patient.patientId)}
+                            className="text-red-400 hover:text-red-300 underline transition duration-200"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 )}
@@ -173,7 +204,7 @@ const PatientList: React.FC = () => {
             {patients.length === 0 && (
               <tr>
                 <td
-                  colSpan={isAdmin ? 6 : 5}
+                  colSpan={(isAdmin || isDoctor) ? 6 : 5}
                   className="text-center py-8 text-gray-400"
                 >
                   No patients found.
@@ -183,6 +214,16 @@ const PatientList: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Emergency Contacts Modal */}
+      {selectedPatient && (
+        <PatientEmergencyContactsModal
+          isOpen={isEmergencyContactsModalOpen}
+          onClose={handleCloseEmergencyContactsModal}
+          patientId={selectedPatient.userId}
+          patientName={`${selectedPatient.firstName} ${selectedPatient.lastName}`}
+        />
+      )}
     </div>
   );
 };
